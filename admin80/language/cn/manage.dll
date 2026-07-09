@@ -1,0 +1,11 @@
+##
+## DO NOT MODIFY THIS FILE BY HAND!
+##
+"Manage information"=>"Thông tin lãnh đạo",
+"Create manage"=>"Thêm mới lãnh đạo",
+"Name"=>"Tên lãnh đạo",
+"Position"=>"Vị trí",
+"Image"=>"Hình đại diện",
+"Description"=>"Tóm tắt",
+"No."=>"Thứ tự",
+"fix size image"=>"Cần chỉnh kích thước hình ảnh sao cho phù hợp với giao diện.",

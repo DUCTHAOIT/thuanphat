@@ -1,0 +1,7 @@
+<div class="title">{box_block_title title=$Products_and_manufacturers}</div>
+{assign var="order" value="1"}
+{foreach key=key item=item from = $arr}
+	<div style="float:left; width:15px; color:#666666; padding-bottom: 5px; padding-left:10px;"><strong>{$order}.</strong></div>
+	<div style="padding-bottom:5px"><a href="{$smarty.const._DOMAIN_ROOT_URL}/{$item.url}f=detail&{$smarty.const._ID_PRODUCT}={$item.id}" onmouseout="UnTip()" onmouseover="Tip('<div style=width:400px><div style=float:left; width:100px><div><img src={$smarty.const._DOMAIN_ROOT_URL}/img/logo/{$item.logo} /></div><div style=padding-right:10px><img src={$smarty.const._DOMAIN_ROOT_URL}/img/product/{$item.img} /></div></div></div><div style=padding-top:10px><strong>Model:</strong> {$item.model}</div><div style=color:#FF0000 class=title><strong>{$Price}: {format_number number=$item.price}</strong></div><div class=title><strong>{$Delivery}:</strong> {$item.delivery}</div><div>{$item.summary|nl2br}</div></div></div>',SHADOW, true, BGCOLOR, '#ffffff',TITLE,'<div><img src={$smarty.const._DOMAIN_ROOT_URL}/theme_images/icon_red_right.gif> {$item.name}</div>')">{$item.name}</a></div>
+	{assign var="order" value="$order+1"}
+{/foreach}

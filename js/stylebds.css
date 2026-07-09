@@ -1,0 +1,58 @@
+/*
+Theme Name: NT Theme 
+Theme URI: 
+Author: Trung nguyen
+Author URI: 
+Description: 
+Version: 1.0
+Tags: 
+License: 
+License URI: 
+*/
+
+.property-box-simple-actions span{
+	text-transform:none;
+	font-size:11px;
+	font-weight:200;
+	
+}
+.main>.container>div#agents_widget-2{
+	display:none;
+}
+.agent-medium-title{
+	font-size:19px;
+}
+.property-box-simple-actions{
+display:none;
+}
+.property-box-simple:hover .property-box-simple-actions{
+display:block;
+}
+
+.post-title a {
+    font-size: 15px;
+}
+.post-box .post-body {
+    padding: 10px;
+}
+.header-navigation .nav > li.current-menu-ancestor > a, .header-navigation .nav > li.current-menu-item > a {
+    color: #fff!important;
+}
+a {
+    color: #50B848;
+}
+.agent-medium-subtitle{
+color: #9E9E9E;
+    font-size: 12px;
+    letter-spacing: 0.3px;
+    transition: color linear .12s;
+}
+.header-navigation-wrapper .header-navigation .nav > li.current-menu-ancestor, .header-navigation-wrapper .header-navigation .nav > li.current-menu-item {
+    box-shadow: inset 0px -2px 0px 0px #876325;
+}
+.property-box-simple-actions {
+    background-color: rgba(80, 184, 72, 0.73);}
+
+.header-navigation-wrapper.clearfix {
+    padding-top: 25px;
+}

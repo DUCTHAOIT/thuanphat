@@ -1,0 +1,142 @@
+RewriteEngine on
+RewriteBase /
+RewriteCond %{HTTP_REFERER} !^http://namphuongpharma.com.vn/htaccess/.*$ [NC]
+RewriteCond %{HTTP_REFERER} !^http://namphuongpharma.com.vn/.*$ [NC]
+RewriteRule ^http://namphuongpharma.com.vn/ http://namphuongpharma.com.vn
+IndexIgnore .htaccess */.??* *~ *# */HEADER* */README* */_vti*
+<Limit GET POST>
+	order deny,allow
+	deny from all
+	allow from all
+</Limit>
+<Limit PUT DELETE>
+	order deny,allow
+	deny from all
+</Limit>
+#
+#----------------------------------------------------------------------------------
+#
+# cau hinh image, js
+
+RewriteRule ^theme_images/(.*) theme/default/images/$1
+RewriteRule ^img/(.*) images/$1
+RewriteRule ^style/(.*) theme/default/$1
+RewriteRule ^jsfile/(.*) js/$1
+RewriteRule ^style_file/(.*) js/$1
+
+#
+RewriteRule ^video/(.*) ?m=video&id=$1
+RewriteRule ^cac-buoc-tham-gia-dau-tu2/ ?m=htmlpage&f=cacbuocthamgiadautubuoc2
+RewriteRule ^cac-buoc-tham-gia-dau-tu3/ ?m=htmlpage&f=cacbuocthamgiadautubuoc3
+RewriteRule ^dich-vu/dau-tu-ben-vung--tsbv/(.*) ?m=htmlpage&idF=48_660&op=tongquantsbv&id=$1
+RewriteRule ^dich-vu/dau-tu-tang-truong--tstt/(.*) ?m=htmlpage&idF=48_661&op=tongquantstt&id=$1
+#-------------Product---------------------------------------
+# san pham cung hang voi san pham dang xem
+RewriteRule ^product_and_manufacturers/(.*)/ ?m=product&f=product_and_manufacturers&product_id=$1
+
+# san pham cung thong so ky thuat voi san pham dang xem
+RewriteRule ^product_in_technical/(.*)/ ?m=product&f=product_in_technical&product_id=$1
+
+# danh sach san pham theo hang san xuat
+RewriteRule ^san_pham_hang_(.*) ?m=product&op=product_hang&hsx=$1
+RewriteRule ^product_print/(.*)/ ?m=product&f=printdetail&id=$1
+#
+#----------Basket-------------------------
+#
+RewriteRule ^basket/ ?m=basket
+RewriteRule ^view_basket_count/ ?m=basket&f=view_basket_count
+
+#Them san pham vao gio hang
+RewriteRule ^add_basket/(.*)/ ?m=basket&op=add_basket&product_id=$1
+
+# Xem danh sach san pham trong gio hang
+RewriteRule ^view_basket/ ?m=basket&op=view_basket
+
+# Danh sach cac don hang da dat mua
+RewriteRule ^user_list_basket/ ?m=basket&f=basket_user
+
+# Chi tiet don hang da dat mua cua nguoi dung
+RewriteRule ^user_detail_basket/(.*)/ ?m=basket&f=basket_user&op=detail&id=$1
+
+# Chi tiet don hang da dat mua cua nguoi dung
+RewriteRule ^user_album/ ?m=basket&f=basket_user&op=albumUser
+
+#
+#----------Support online-------------------------
+#
+# Hien thi support online
+RewriteRule ^view_support_online/ ?m=support_online&f=support_online
+RewriteRule ^view_support_online_home/ ?m=support_online&f=support_online_home
+
+#
+#--------- Oder ---------------------
+#
+# Thong tin thanh vien
+RewriteRule ^infomember_basket/ ?m=basket&op=infomember
+
+#
+#--------- User---------------------
+# Thong tin thanh vien
+RewriteRule ^user/(.*) ?m=user&aff=$1
+RewriteRule ^user_iMember/ ?m=user&op=iMember
+RewriteRule ^user_dashboard/(.*) ?m=user&f=dashboard&page=$1
+RewriteRule ^user_project/ ?m=user&op=user_project
+RewriteRule ^user_hoc_vien/ ?m=user&op=user_hoc_vien
+RewriteRule ^khach-hang-gioi-thieu/ ?m=user&op=khach_hang
+RewriteRule ^user_login/ ?m=user&f=Userlogin
+RewriteRule ^user_forget/ ?m=user&op=forget
+RewriteRule ^user_change_password/ ?m=user&op=changepasswordfrm
+RewriteRule ^change_password/ ?m=user&f=changepasswordfrm
+RewriteRule ^user_buy_sell/(.*) ?m=user&op=user_buy_sell&idF=1000&id=$1
+RewriteRule ^user_buy_sell456/(.*) ?m=user&op=user_buy_sell456&idF=1001&id=$1
+RewriteRule ^user_buy_(.*) ?m=user&f=user_buy&id=$1
+RewriteRule ^xac-thuc-dat-ban/(.*) ?m=user&f=userxacthucban&id=$1
+RewriteRule ^xac-thuc-dat-mua/(.*) ?m=user&f=userxacthucmua&id=$1
+RewriteRule ^list-dat-mua/(.*) ?m=user&op=list-dat-mua&id=$1
+
+RewriteRule ^dang-bai/ ?m=post&op=frm&id=$1
+RewriteRule ^user_post_(.*) ?m=post&op=product_user&id=$1
+RewriteRule ^user_list/(.*) ?m=post&op=product_user&id=$1
+RewriteRule ^bookmarked/(.*) ?m=post&op=bookmarked&id=$1
+#
+#
+#--------- Faq's --------------------
+#
+# Hoi dap
+RewriteRule ^faqs/ ?m=faq
+
+#
+#--------- contact --------------------
+#
+# Lien he
+
+#
+#--------- Photo --------------------
+#
+# Thu vien anh
+RewriteRule ^photo/ ?m=photo
+#RewriteRule ^photo/(.*)/ ?m=photo&id=$1
+RewriteRule ^photo_(.*) ?m=gallery&id=$1
+
+#
+#--------- Binh chon --------------------
+#
+RewriteRule ^poll_result/ ?m=poll&f=poll_result
+RewriteRule ^poll_update/ ?m=poll&f=poll_update
+#
+#
+#--------- Search --------------------
+#
+RewriteRule ^search/(.*)/(.*)/ ?m=search&catID=$1&keyword=$1
+#
+#
+#------- Print-------------------------
+#
+RewriteRule ^page_print/(.*)/ ?m=htmlpage&f=printdetail&id=$1
+#--------- comment ----------
+RewriteRule ^comment/(.*)/ ?m=control&f=comment&id=$1
+RewriteRule ^vn/sitemap/(.*) ?m=htmlpage&f=sitemap&idF=205_208
+RewriteRule ^en/sitemap/(.*) ?m=htmlpage&f=sitemap&idF=198_201
+RewriteRule ^en/cost-estimates/(.*) ?m=product&f=dutoan
+RewriteRule ^vn/du-toan/(.*) ?m=product&f=dutoan
+RewriteRule ^hoat-dong-dau-tu/bieu-do-hieu-qua-dau-tu/(.*)  ?m=product&f=hieuquadautu&idF=287_489&id=$1

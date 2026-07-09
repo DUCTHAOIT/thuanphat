@@ -1,0 +1,15 @@
+##
+## DO NOT MODIFY THIS FILE BY HAND!
+##
+#--------Member-------------
+"Name"=>"Họ và Tên",
+"Subject"=>"Tiêu đề",
+"Content"=>"Nội dung",
+"Send mail"=>"Gửi thư",
+"Contact"=>"Liên hệ",
+"Address"=>"Địa chỉ",
+"Attach"=>"Tệp đính kèm",
+"Security code"=>"Mã an toàn",
+"To contact the company please please fill out the contact form below"=>"Để liên hệ trực tiếp với công ty xin quý khách vui lòng điền vào mẫu liên hệ dưới đây",
+"Thank you for contacting us.  We will study your email and revert."=>"Xin cảm ơn quý khách đã liên hệ với chúng tôi.  Chúng tôi sẽ nghiên cứu ý kiến của quý khách và liên hệ lại trong thời gian sớm nhất.",
+"Click here to return to home page."=>"Click vào đây để quay về trang chủ.",

@@ -1,0 +1,98 @@
+<!-- PAGE CONTENT WRAPPER -->
+<div class="page-content-wrap">
+    <div class="row">
+
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <h3><span class="fa fa-download"></span> Dropzone</h3>
+                                <p>Kéo thả hình để upload ảnh (Upload tối đa 5 ảnh 1 lần). Dung lượng ảnh không quá 1MB</p>
+                                <form action="#" class="dropzone dz-clickable" id="dropzoneFrom">
+                                <input type="hidden" name="m" value="upload" />
+    							<input type="hidden" name="f" value="file-upload" />
+                                <div class="dz-default dz-message"><span>Drop files here to upload</span></div></form>
+                                <br><button type="submit" class="btn btn-info" id="submit-all">Upload</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                
+            
+    </div>
+
+<!-- END BLUEIMP GALLERY -->
+
+<!-- START THIS PAGE PLUGINS-->
+<script type="text/javascript" src="./dropzone_files/jquery.blueimp-gallery.min.js.tải xuống"></script>
+<script type="text/javascript" src="./dropzone_files/jquery.noty.js.tải xuống"></script>
+<script type="text/javascript" src="./dropzone_files/topRight.js.tải xuống"></script>
+<script type="text/javascript" src="./dropzone_files/default.js.tải xuống"></script>
+
+
+<script>
+
+    $( document ).ready(function() {
+        $('.gallery-item-remove').click(function() {
+            var url = $(this).attr( "url" );
+            $.ajax({
+                method: "POST",
+                url: url
+            })
+            .done(function( msg ) {
+                noty({text: 'Delete successful', layout: 'topRight', type: 'success'});
+            });
+        })
+    });
+
+</script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+<script type="text/javascript" src="./dropzone_files/dropzone.min.js.tải xuống"></script>
+<script type="text/javascript" src="./dropzone_files/fileinput.min.js.tải xuống"></script>
+<script type="text/javascript" src="./dropzone_files/jqueryFileTree.js.tải xuống"></script>
+
+
+<script>
+    $( document ).ready(function() {
+        Dropzone.options.dropzoneFrom = {
+            autoProcessQueue: false,
+            acceptedFiles:".png,.jpg,.gif,.bmp,.jpeg",
+            parallelUploads: 5,
+            maxFilesize: 5, // MB
+            init: function(){
+                var submitButton = document.querySelector('#submit-all');
+
+                myDropzone = this;
+
+                submitButton.addEventListener("click", function(){
+                    myDropzone.processQueue();
+                });
+                this.on("complete", function(file){
+                    noty({text: 'Upload successful', layout: 'topRight', type: 'success'});
+                });
+            },
+        };
+
+    });
+</script>
+    </div>
+    <!-- END PAGE CONTENT -->
+
+</div>
+<!-- END PAGE CONTAINER -->
+

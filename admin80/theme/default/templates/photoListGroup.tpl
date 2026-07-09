@@ -1,0 +1,31 @@
+<form name="frmList" action="" method="post" enctype="multipart/form-data">
+<input type="hidden" name="id" value="" />
+<input type="hidden" name="op" value="" />
+<table width="100%" border="1" cellspacing="0" cellpadding="0" class="table">
+  <tr class="tr">
+    <td class="td">&nbsp;</td>
+	<td class="td">&nbsp;</td>
+    <td class="td">{$Name}</td>
+    <td class="td">{$Date}</td>
+    <td class="td">{$No}</td>
+    <td class="td">&nbsp;</td>
+  </tr>
+  {assign var="i" value="1"}
+  {foreach item=item key=key from=$arr}  
+    <tr bgcolor="{cycle values="#FFFFFF,#F7F7F7"}">
+    <td class="td">{$i}</td>
+	<td class="td">
+	<label style="padding-right:5px"><img src="images/delete.gif" onclick="goDelete({$key},document.frmList)" style="cursor:pointer" title="Delete" />	</label>
+	<label style="padding-right:5px" title="Edit"><img src="images/edit.gif" onclick="goEdit({$key})" style="cursor:pointer" /> </label>
+	<label id="lock_{$key}" onclick="callLock({$key})" style="cursor:pointer; padding-right:5px"><img src="images/{$item.ctrl}.gif" /></label>	
+	<label><a href="?m=photo&op=mainlistofgroup&id={$key}"><img src="images/product_photo.jpg" border="0" /></a></label>
+	</td>
+    <td class="td"><a href="#" onclick="goEdit({$key})" >{$item.name}</a><br /><strong>Đầu mục: {$item.funname}</strong></td>
+    <td class="td">{$item.date_create}</td>
+    <td class="td">{$item.no}</td>
+    <td class="td"><img src="{$smarty.const._DOMAIN_ROOT_URL}/images/photo/thumbs/{$item.img1}" width="100" /></td>
+    </tr>
+  {assign var="i" value="$i+1"}
+  {/foreach}  
+</table>
+</form>

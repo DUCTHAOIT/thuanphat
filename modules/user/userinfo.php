@@ -1,0 +1,2 @@
+<div align="center" style="padding-top:60px; padding-bottom:10px">Bạn cần hoàn thiện thông tin cá nhân để sử dụng chức năng này</div>
+<div align="center" style="padding-bottom:60px"><a href="<?php echo _DOMAIN_ROOT_URL;?>/user_iMember/" class="title">Click vào đây để hoàn thiện thông tin cá nhân</a></div>

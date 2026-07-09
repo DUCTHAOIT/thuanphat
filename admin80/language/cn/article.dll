@@ -1,0 +1,15 @@
+##
+## DO NOT MODIFY THIS FILE BY HAND!
+##
+"Article name"=>"Tên bài viết",
+"Source"=>"Nguồn tin",
+"Status"=>"Trạng thái",
+"Group name"=>"Nhóm tin",
+"Article create"=>"Thêm mới",
+"Display 20 latest news in database"=>"Hiển thị 20 tin mới nhất trong cơ sở dữ liệu",
+"Date create"=>"Ngày cập nhật",
+"Images(w:120px - h: 90px)"=>"Hình ảnh",
+"Images title"=>"Tiêu đề hình ảnh",
+"Content"=>"Nội dung",
+"Summary"=>"Tóm tắt",
+"Keyword"=>"Từ khóa",

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+						<flash_parameters copyright="socusoftFSMTheme">
+							<preferences>
+								<global>
+									<basic_property movieWidth="700" movieHeight="500" html_title="Title" loadStyle="Bar" startAutoPlay="true" backgroundColor="0xffffff" socusoftMenu="false" hideAdobeMenu="false" photoDynamicShow="false" enableURL="true" transitionArray=""/>
+									<title_property photoTitle="false" photoTitleX="5" photoTitleY="5" photoTitleSize="15" photoTitleFont="Verdana" photoTitleColor="0xffffff"/>
+									<music_property path="" stream="true" loop="true"/>
+									<photo_property topPadding="0" bottomPadding="75" leftPadding="0" rightPadding="0"/>
+									<frame_property frameColor=""/>
+									<properties enable="true" backgroundColor="0xffffff" backgroundAlpha="30" cssText="a:link{text-decoration: underline;} a:hover{color:#ff0000; text-decoration: none;} a:active{color:#0000ff;text-decoration: none;} .blue {color:#0000ff; font-size:15px; font-style:italic; text-decoration: underline;} .body{color:#ff5500;font-size:20px;}" align="top"/>
+								</global>
+								<thumbnail>
+									<basic_property backgroundColor="0x3c3c3c" buttonColor="0x000000" borderColor="0xb3b3b3"/>
+								</thumbnail>
+							</preferences>
+							<album>
+ <slide jpegURL="thumbs/103AQKNO_15m.jpg" d_URL="slides/A11CAFV1_15.jpg" transition="29" panzoom="1" URLTarget="0" phototime="2" url="" title="1" width="700" height="500"/>
+ <slide jpegURL="thumbs/103AQKHF_14m.jpg" d_URL="slides/A11CADS6_14.jpg" transition="29" panzoom="1" URLTarget="0" phototime="2" url="" title="1" width="700" height="500"/>
+ <slide jpegURL="thumbs/A11CABI7_13m.jpg" d_URL="slides/A11CAC5B_13.jpg" transition="29" panzoom="1" URLTarget="0" phototime="2" url="" title="1" width="700" height="500"/>
+ <slide jpegURL="thumbs/A11CA9F4_12m.jpg" d_URL="slides/A11CAA3N_12.jpg" transition="29" panzoom="1" URLTarget="0" phototime="2" url="" title="1" width="700" height="500"/>
+ <slide jpegURL="thumbs/A11CA7LM_11m.jpg" d_URL="slides/A11CA8BM_11.jpg" transition="29" panzoom="1" URLTarget="0" phototime="2" url="" title="1" width="700" height="500"/>
+ <slide jpegURL="thumbs/A11CA5MJ_10m.jpg" d_URL="slides/A11CA666_10.jpg" transition="29" panzoom="1" URLTarget="0" phototime="2" url="" title="1" width="700" height="500"/>
+ <slide jpegURL="thumbs/103AQJIL_9m.jpg" d_URL="slides/A11CA4B2_9.jpg" transition="29" panzoom="1" URLTarget="0" phototime="2" url="" title="1" width="700" height="500"/>
+ <slide jpegURL="thumbs/A11CA1AR_8m.jpg" d_URL="slides/A11CA1PM_8.jpg" transition="29" panzoom="1" URLTarget="0" phototime="2" url="" title="1" width="700" height="500"/>
+ <slide jpegURL="thumbs/A11C9VLB_7m.jpg" d_URL="slides/A11CA05A_7.jpg" transition="29" panzoom="1" URLTarget="0" phototime="2" url="" title="1" width="700" height="500"/>
+ <slide jpegURL="thumbs/A11C9TT1_6m.jpg" d_URL="slides/A11C9UEP_6.jpg" transition="29" panzoom="1" URLTarget="0" phototime="2" url="" title="1" width="700" height="500"/>
+ <slide jpegURL="thumbs/A11C9S2I_5m.jpg" d_URL="slides/A11C9SJ2_5.jpg" transition="29" panzoom="1" URLTarget="0" phototime="2" url="" title="1" width="700" height="500"/>
+ <slide jpegURL="thumbs/A11C9QDS_4m.jpg" d_URL="slides/A11C9QTF_4.jpg" transition="29" panzoom="1" URLTarget="0" phototime="2" url="" title="1" width="700" height="500"/>
+ <slide jpegURL="thumbs/A11C9OOE_3m.jpg" d_URL="slides/A11C9PA0_3.jpg" transition="29" panzoom="1" URLTarget="0" phototime="2" url="" title="1" width="700" height="500"/>
+ <slide jpegURL="thumbs/103AQI9B_2m.jpg" d_URL="slides/A11C9NDN_2.jpg" transition="29" panzoom="1" URLTarget="0" phototime="2" url="" title="1" width="700" height="500"/>
+ <slide jpegURL="thumbs/A11C814S_1m.jpg" d_URL="slides/A11C81L9_1.jpg" transition="29" panzoom="1" URLTarget="0" phototime="2" url="" title="1" width="700" height="500"/>
+ <slide jpegURL="thumbs/A11D9Q71_duongm.jpg" d_URL="slides/A11D9EES_1.jpg" transition="29" panzoom="1" URLTarget="0" phototime="2" url="" title="1" width="700" height="500"/>
+</album>
+</flash_parameters>

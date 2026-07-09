@@ -1,0 +1,1 @@
+<div style="border-bottom:1px solid #cccccc; text-align:right"><img src="{$smarty.const._DOMAIN_ROOT_URL}/theme_images/cart_img.gif"></div>

@@ -1,0 +1,35 @@
+##
+## DO NOT MODIFY THIS FILE BY HAND!
+##
+"Album group"=>"Nhóm Album",
+"Album name"=>"Tên Album",
+"Price new"=>"Giá mới",
+"Price old"=>"Giá cũ",
+"Price"=>"Giá Albums",
+"Summary"=>"Tóm tắt Albums",
+"Detail"=>"Chi tiết Albums",
+"Date create"=>"Ngày nhập",
+"Languages"=>"Ngôn ngữ",
+"Photo"=>"Hình ảnh",
+"Status"=>"Trạng thái",
+"Photo relation"=>"Hình ảnh liên quan",
+"Photo big size"=>"Kích thước ảnh lớn",
+"Photo small size"=>"Kích thước ảnh nhỏ",
+"State"=>"Tình trạng",
+"Insert file"=>"File hướng dẫn sử dụng",
+"Products sold in"=>"Albums bán tại",
+"Delivery"=>"Giao hàng",
+"Promotion"=>"Khuyến mãi",
+"Technical"=>"Thông số kỹ thuật",
+"Manufacturers"=>"Khách hàng",
+"products in the list"=>"Albums trong danh sách",
+"Photo size must be adjusted as provided below"=>"Kích thước hình ảnh phải được điều chỉnh theo quy định bên dưới",
+"Management's products"=>"Quản lý hình ảnh Albums",
+"Special promotion"=>"Khuyến mãi đặc biệt",
+#
+#-----------Hang san xuat--------------------
+#
+"Management manufacturers"=>"Quản lý hãng sản xuất",
+"Manufacturers name"=>"Tên hãng sản xuất",
+"Company logo"=>"Logo công ty",
+"Manufacturers already in the data"=>"Hãng sản xuất đã có trong dữ liệu",

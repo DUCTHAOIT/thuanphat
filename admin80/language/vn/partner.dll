@@ -1,0 +1,19 @@
+##
+## DO NOT MODIFY THIS FILE BY HAND!
+##
+"Group name"=>"Nhóm",
+"Information"=>"Thông tin",
+"Name"=>"Tên",
+"Address"=>"Địa chỉ",
+"Tel"=>"Điện thoại",
+"Website"=>"Website",
+"Description"=>"Miêu tả",
+"Create"=>"Thêm mới",
+"No."=>"Thứ tự",
+"fix size logo"=>"Cần chỉnh kích thước logo sao cho phù hợp với giao diện.",
+"Date create"=>"Ngày cập nhật",
+"Images(w:120px - h: 90px)"=>"Hình ảnh",
+"Images title"=>"Tiêu đề hình ảnh",
+"Content"=>"Nội dung",
+"Summary"=>"Tóm tắt",
+"Keyword"=>"Từ khóa",

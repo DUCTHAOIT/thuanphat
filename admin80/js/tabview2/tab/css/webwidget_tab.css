@@ -1,0 +1,50 @@
+@charset "utf-8";
+/* CSS Document */
+.webwidget_tab{font-size: 13px;}.tabContainer{width:100%;background:url(../images/tab.gif) repeat-x bottom;overflow:hidden;}.tabContainer li{float:left;background:#CCCCCC;height:30px;}.tabContainer li a{display:block!important;display:inline-block;padding:0 15px;height:30px;line-height:30px;color:#FFFFFF}
+.webwidget_tab .tabHead{
+    list-style-type: none;
+    margin:0px;
+    padding:0px;
+}
+.webwidget_tab .tabBody{
+    border-left:#cccccc solid 1px;
+    border-right:#cccccc solid 1px;
+	border-bottom:#cccccc solid 1px;
+    background-color: white;
+}
+.webwidget_tab .tabBody ul,li{
+    margin: 0px;
+    padding: 0px;
+    list-style: none;
+}
+.webwidget_tab .tabBody ul{
+    
+}
+.webwidget_tab .tabBody ul li{
+    
+}
+.webwidget_tab .tabHead li a{
+    font-weight: bold;
+    text-decoration: none;
+    color: #FFFFFF;
+	text-align:center;
+}
+.webwidget_tab .tabCot{
+
+}
+.webwidget_tab .tabCot p{
+    margin: 0px;
+    padding:5px;
+}
+.webwidget_tab .tabContainer li.currentBtn{
+	background: #f1592a;
+    color: #ffffff;
+    font-weight: bold;
+}
+.webwidget_tab .tabContainer li.currentBtn a{color:#ffffff;}
+.webwidget_tab .modA{margin:10px;}
+.webwidget_tab .modBody{border-left:#cccccc solid 0px;border-right:#cccccc solid 0px; background-color: white;}
+.webwidget_tab .modTop h3{padding:0px;margin:0px;height:31px;background:url(../images/modAT.gif) repeat-x left top;color:#2C6A78;font-size:12px;line-height:25px;}.modTop span.modATL,.modTop span.modATR{float:left;width:4px;height:31px;background:url(../images/bg.gif) no-repeat left top;overflow:hidden;}.modTop span.modATR{float:right;background:url(../images/bg.gif) no-repeat -4px top;}.modA #sideNav dd a:hover{background:url(../images/bg.gif) no-repeat left -110px;color:#FFF;text-decoration:none;}
+.webwidget_tab .modBottom{width:100%;height:4px;background:url(../images/modAB.gif) repeat-x left top;overflow:hidden;}
+.webwidget_tab .modBottom span.modABL,.modBottom span.modABR,.modTopB span.modATR,.modTopB span.modATL{float:left;width:4px;height:4px;background:url(../images/bg.gif) no-repeat left -31px;overflow:hidden;}
+.webwidget_tab .modBottom span.modABR{float:right;background:url(../images/bg.gif) no-repeat -4px -31px;}

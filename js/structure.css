@@ -1,0 +1,87 @@
+﻿* { padding: 0; margin: 0; }
+body {margin:0;font-family:Arial;font-size:12px;background-color:#070707;color:#ffffff;}
+#divheader{width:100%;height:133px;margin:0 auto;}
+.header{width:1000px;height:133px;margin:0 auto;background-image:url(Images/header.gif);background-repeat:no-repeat;}
+/* Gallery*/
+a:hover{color:#67a;}
+.caption{font-style:italic;color:#887;}
+.demo{width:631px;margin:0 auto;}
+.gallery_demo{width:526px;margin:0 auto;}
+.gallery_demo li{width:77px;height:50px;border:3px double #111;margin: 0 2px;}
+.gallery_demo li div{left:0px}
+/*.gallery_demo li div .caption{font:italic 0.7em/1.4 georgia,serif;}*/
+#main_image{width:500px;height:500px;overflow:hidden;}
+#main_image img{width:500px;height:500px;margin-bottom:0px;}	
+.nav{width:500px;margin:0 auto;}
+/* End Gallery*/
+#page{width:100%;margin:0 auto;}
+#wrapper{width:1000px;margin:0 auto;}
+#center{width:631px;margin:0 auto;}
+#right{width:359px;height:443px;padding:0px 5px;border-top:solid 1px #161616;
+border-left:solid 1px #161616;border-bottom:solid 1px #161616;text-align:justify;}
+.tieude{font-family:Arial;font-size:12px;text-align:left;text-decoration:none;text-transform:uppercase;color:#969696;}
+.mota{font-family:Arial;font-size:12px;text-align:justify;text-decoration:none;color:#969696;}
+.cssheight5{height:5px;line-height:5px;}
+.cssheight10{width:100%;height:10px;line-height:10px;}
+#footer{width:100%;height:80px;}
+.footer1{width:1000px;height:60px;margin:0 auto;margin-top:20px;border-top:solid 1px #161616;color:#ffffff;line-height:22px;text-align:center;}
+.csscopyright{font-size:11px;line-height:17px;text-align:center;font-weight:normal;text-decoration:none;color:#969696;}
+.csscopyright1{font-size:11px;text-align:center;font-weight:bold;text-decoration:none;color:#bfbfbf;}
+A.linknext:link{font-size:12px;text-align:center;font-weight:bold;text-decoration:none;color:#969696;}
+A.linknext:active{font-size:12px;text-align:center;font-weight:bold;text-decoration:none;color:#969696;}
+A.linknext:visited{font-size:12px;text-align:center;font-weight:bold;text-decoration:none;color:#969696;}
+A.linknext:hover{font-size:12px;text-align:center;font-weight:bold;text-decoration:none;color:#c49b5d;}
+/* Scroll Bar Master Styling Starts Here */
+/* comments can freely be removed from this file */
+
+/* do not modify .scrollgeneric class, required for proper operation */
+.scrollgeneric {
+line-height: 1px; font-size: 1px;
+position: absolute; top: 0; left: 0;
+}
+
+.vscrollerbase, .vscrollerbar {
+width: 7px;
+}
+.vscrollerbar {
+/*padding information of these elements are only used for
+padding of the scroll-bar with respect to the scroll base,
+the padding will automatically be turned off by the script*/
+padding: 5px;
+/* z-index for scrollbars no longer has to be given as of version
+1.7.5 for correct operation, but it is still recommended, as this
+decides the z-index for content.*/
+z-index: 2;
+}
+.vscrollerbarbeg {
+/*top image holder for vertical scroll bar*/
+background-image: url(images/scrolltop.gif);background-repeat:no-repeat;
+width: 7px;height:443px;
+/* height is auto set by the script to fit the scrollbar */
+}
+.vscrollerbarend {
+/*bottom image holder for vertical scroll bar*/
+background: url(images/scrollbottom.gif);
+width: 7px; height:15px;
+}
+/* Following are OPTIONAL */
+.vscrollerbase{
+background-color: #808080;
+background: url(images/scrollbg.gif);background-repeat:repeat-y;
+width: 7px;
+}
+.vscrollerbasebeg {
+width: 7px;
+background: url(images/scrollbottom2.gif) -7px -8px no-repeat;
+/* height is auto set to fill the base */
+}
+.vscrollerbaseend {
+height: 15px; width: 7px;
+background: url(images/scrollbottom.gif) -7px 0px no-repeat;
+}
+.scrollerjogbox {
+width: 7px; height: 15px;
+top: auto; left: auto; bottom: 0px; right: 0px;
+/*background: white url(images/scrollbottom.gif) 50% 50%;*/
+}
+/* Scroll Bar Master Styling Ends Here */

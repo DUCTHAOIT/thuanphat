@@ -1,0 +1,20 @@
+##
+## DO NOT MODIFY THIS FILE BY HAND!
+##
+
+"Email"=>"Thư điện tử",
+"Password"=>"Mật khẩu",
+"Re-enter password"=>"Xác nhận lại mật khẩu",
+"First name"=>"Tên gọi",
+"Last name"=>"Họ tên",
+"Address"=>"Địa chỉ",
+"Birthday"=>"Ngày sinh",
+"Cannot member"=>"Chưa có thành viên nào",
+"No."=>"Stt",
+"Fullname"=>"Họ tên",
+"Number access"=>"Truy cập",
+"Status"=>"Trạng thái",
+"Member create"=>"Thêm mới thành viên",
+"List of rights"=>"Danh sách quyền hạn",
+"Can not update data because you have not chosen the right for members"=>"Không thể cập nhật dữ liệu vì bạn chưa chọn quyền cho thành viên",
+"Change password"=>"Thay đổi mật khẩu",

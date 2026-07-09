@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+						<flash_parameters copyright="socusoftFSMTheme">
+							<preferences>
+								<global>
+									<basic_property movieWidth="550" movieHeight="400" html_title="Title" loadStyle="Bar" startAutoPlay="true" backgroundColor="0xffffff" socusoftMenu="false" hideAdobeMenu="false" photoDynamicShow="false" enableURL="true" transitionArray=""/>
+									<title_property photoTitle="false" photoTitleX="5" photoTitleY="5" photoTitleSize="15" photoTitleFont="Verdana" photoTitleColor="0xffffff"/>
+									<music_property path="" stream="true" loop="true"/>
+									<photo_property topPadding="0" bottomPadding="75" leftPadding="0" rightPadding="0"/>
+									<frame_property frameColor=""/>
+									<properties enable="true" backgroundColor="0xffffff" backgroundAlpha="30" cssText="a:link{text-decoration: underline;} a:hover{color:#ff0000; text-decoration: none;} a:active{color:#0000ff;text-decoration: none;} .blue {color:#0000ff; font-size:15px; font-style:italic; text-decoration: underline;} .body{color:#ff5500;font-size:20px;}" align="top"/>
+								</global>
+								<thumbnail>
+									<basic_property backgroundColor="0x3c3c3c" buttonColor="0x000000" borderColor="0xb3b3b3"/>
+								</thumbnail>
+							</preferences>
+							<album>
+ <slide jpegURL="thumbs/AB23ASNE_alc block transport (6).jpg" d_URL="slides/" transition="29" panzoom="1" URLTarget="0" phototime="2" url="" title="1" width="550" height="400"/>
+ <slide jpegURL="thumbs/AB23AOS6_alc block transport (5).jpg" d_URL="slides/" transition="29" panzoom="1" URLTarget="0" phototime="2" url="" title="1" width="550" height="400"/>
+ <slide jpegURL="thumbs/AB23AMCC_alc block transport (4).jpg" d_URL="slides/" transition="29" panzoom="1" URLTarget="0" phototime="2" url="" title="1" width="550" height="400"/>
+ <slide jpegURL="thumbs/AB23AKH5_alc block transport (3).jpg" d_URL="slides/" transition="29" panzoom="1" URLTarget="0" phototime="2" url="" title="1" width="550" height="400"/>
+ <slide jpegURL="thumbs/AB23AIBR_alc block transport (2).jpg" d_URL="slides/" transition="29" panzoom="1" URLTarget="0" phototime="2" url="" title="1" width="550" height="400"/>
+ <slide jpegURL="thumbs/AB23AGRO_alc block transport (1).jpg" d_URL="slides/" transition="29" panzoom="1" URLTarget="0" phototime="2" url="" title="1" width="550" height="400"/>
+</album>
+</flash_parameters>

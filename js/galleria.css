@@ -1,0 +1,26 @@
+.galleria{width:531px;margin:0 auto;}
+.galleria li{display:block;width:80px;height:80px;overflow:hidden;float:left;}
+.galleria li a{display:none}
+.galleria li div{position:absolute;display:none;top:0;}
+.galleria li div img{cursor:pointer;}
+/*.galleria li.active div img,.galleria li.active div{display:block}*/
+.galleria li img.thumb{width:80px;height:80px;cursor:pointer;display:block;}
+.galleria li .caption{display:block;padding-top:.5em;}
+/** html .galleria li div span{width:400px} /* MSIE bug */
+/* Gallery*/
+a:hover{color:#67a;}
+.caption{font-style:italic;color:#887;}
+.demo{width:631px;margin:0 auto;}
+.gallery_demo{width:526px;margin:0 auto;}
+.gallery_demo li{width:80px;height:80px;border:3px double #111;margin: 0 2px;}
+.gallery_demo li div{left:0px}
+/*.gallery_demo li div .caption{font:italic 0.7em/1.4 georgia,serif;}*/
+#main_image{width:700px;height:438px;overflow:hidden;}
+#main_image img{width:700px;height:438px;margin-bottom:0px;}	
+.nav{width:700px;margin:0 auto;}
+/* End Gallery*/
+
+A.linknext:link{font-size:12px;text-align:center;font-weight:bold;text-decoration:none;color:#969696;}
+A.linknext:active{font-size:12px;text-align:center;font-weight:bold;text-decoration:none;color:#969696;}
+A.linknext:visited{font-size:12px;text-align:center;font-weight:bold;text-decoration:none;color:#969696;}
+A.linknext:hover{font-size:12px;text-align:center;font-weight:bold;text-decoration:none;color:#c49b5d;}

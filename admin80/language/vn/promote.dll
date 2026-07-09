@@ -1,0 +1,10 @@
+##
+## DO NOT MODIFY THIS FILE BY HAND!
+##
+"Create"=>"Thêm mới",
+"Name"=>"Tên sản phẩm",
+"Url"=>"Địa chỉ sản phẩm",
+"Photo"=>"Hình ảnh",
+"Description"=>"Miêu tả",
+"fix size photo"=>"Tự điều chỉnh kích thước ảnh phù hượ với giao diện",
+"promote information"=>"Thông tin sản phẩm khuyến mại",

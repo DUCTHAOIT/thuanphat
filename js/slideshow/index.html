@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="nl" >
+<head>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+	<title>Timothy van Sas - Simple slideshow in jQuery</title>
+	<meta name="author" content="" />
+	<meta name="copyright" content="" />
+	<meta name="generator" content="" />
+	<meta name="keywords" content="" /> 
+	<meta name="description" content="" />
+
+	<meta name="robots" content="index, follow" />
+	<meta name="language" content="nl" />
+	<meta name="revisit-after" content="15 days" />
+	<style type="text/css" media="screen">
+		/* Style the demo page */
+		* { margin: 0; padding: 0; }
+		body { font: normal 12px arial; background: #fff; padding: 40px; }
+		h1 { font: normal 24px helvetica; color: #09afed; }
+		p { padding-bottom: 20px; }
+		a, a:visited { color: #09afed; text-decoration: underline; }
+		a:hover, a:visited:hover { color: #f00; }
+		
+		/* Slideshow code from here */
+		.slideshow { position: relative; background: #fafafa; width: 315px; height: 195px; border: 1px solid #e5e5e5; margin-bottom: 20px; }
+		.slideshow img { position: absolute; top: 3px; left: 3px; z-index: 1; background: #fff; }
+		ul.recentlist { position: absolute; bottom: 12px; right: 4px; list-style: none; z-index: 2; }
+		ul.recentlist li { margin: 0; padding: 0; display: inline; }
+		ul.recentlist li a, ul.recentlist li a:visited { display: block; float: left; background: #e5e5e5; padding: 4px 8px; margin-right: 1px; color: #000; text-decoration: none; cursor: pointer; }
+		ul.recentlist li a:hover, ul.recentlist li a:visited:hover { background: #666; color: #fff; }
+		ul.recentlist li a.current { background: #f00; color: #fff; }
+	</style>
+	<script type="text/javascript" src="jquery.js" charset="utf-8"></script>
+	<script type="text/javascript">
+	$(document).ready(function() {
+		var imgWrapper = $('.slideshow > img');
+		// only show the first image, hide the rest
+		imgWrapper.hide().filter(':first').show();
+		
+		$('ul.recentlist li a').click(function () {
+		
+			// check if this item doesn't have class "current"
+			// if it has class "current" it must not execute the script again
+			if (this.className.indexOf('current') == -1){
+				imgWrapper.hide();
+				imgWrapper.filter(this.hash).fadeIn(500);
+				$('ul.recentlist li a').removeClass('current');
+				$(this).addClass('current');
+			}
+			return false;
+		});
+	});
+	</script>
+
+</head>
+<body>
+	<h1>Simple slideshow in jQuery</h1>
+	<p>Life can be simple O_o</p>
+	<div class="slideshow">
+		<ul class="recentlist">
+			<li><a class="current" href="#slide1">1</a></li>
+			<li><a href="#slide2">2</a></li>
+
+			<li><a href="#slide3">3</a></li>
+		</ul>
+		<img id="slide1" src="http://www.htmldrive.net/edit_media/2010/201007/20100722/jquery.featureCarousel/images/testImage4.jpg" alt="Image 1 slideshow" />
+		<img id="slide2" src="http://www.htmldrive.net/edit_media/2010/201007/20100722/jquery.featureCarousel/images/testImage3.jpg" alt="Image 2 slideshow" />
+		<img id="slide3" src="http://www.htmldrive.net/edit_media/2010/201007/20100722/jquery.featureCarousel/images/testImage2.jpg" alt="Image 3 slideshow" />
+	</div>
+	<p>This example is brought to you by Timothy van Sas, Dutch front-end developer with some serious dancing skills.</p>
+	<p><a href="http://www.incg.nl/blog/2009/simple-slideshow-with-jquery/">Back to the complete article</a></p>
+More script and css style
+: <a href="http://www.htmldrive.net/" title="HTML DRIVE - Free DHMTL Scripts,Jquery plugins,Javascript,CSS,CSS3,Html5 Library">www.htmldrive.net </a>
+
+</body>
+</html>

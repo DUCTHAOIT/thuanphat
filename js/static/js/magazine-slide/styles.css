@@ -1,0 +1,79 @@
+
+#slideshowMagazine{
+	border:1px solid #ccc;
+	height:345px;	
+	width:300px;
+	position:relative;
+}
+
+#slideshowMagazine ul{
+	height:345px;
+	margin:0px;
+	list-style:none outside none;
+	overflow:hidden;
+	position:absolute;	
+	width:300px;
+}
+
+#slideshowMagazine li{
+	position:absolute;
+	display:none;
+	z-index:10;
+}
+
+#slideshowMagazine li:first-child{
+	display:block;
+	z-index:1000;
+}
+
+#slideshowMagazine .slideActive{
+	z-index:1000;
+}
+
+#slideshowMagazine canvas{
+	display:none;
+	position:absolute;
+	z-index:100;
+}
+
+#slideshowMagazine .arrow{
+	height:86px;
+	width:60px;
+	position:absolute;
+	background:url('img/arrows.png') no-repeat;
+	top:50%;
+	margin-top:-43px;
+	cursor:pointer;
+	z-index:5000;
+}
+
+#slideshowMagazine .previous{ background-position:left top;left:0;}
+#slideshowMagazine .previous:hover{ background-position:left bottom;}
+
+#slideshowMagazine .next{ background-position:right top;right:0;}
+#slideshowMagazine .next:hover{ background-position:right bottom;}
+
+
+/* The following styles are only used for the styling of the demo page */
+
+p.tzine{
+	text-align:center;
+	font-size:12px;
+	margin:50px;
+}
+
+p.credit{
+	text-align:center;
+	color:#888;
+	font-size:10px;
+}
+
+p.credit a,
+p.credit a:visited{
+	color:#ccc;
+	border-bottom-color:#aaa;
+}
+
+p.credit a:hover{
+	border-bottom-color:transparent;
+}

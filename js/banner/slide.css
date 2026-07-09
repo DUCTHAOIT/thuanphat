@@ -1,0 +1,405 @@
+#banner2 {
+    position: relative;
+    cursor: pointer;
+}
+
+#banner2 a img {
+    z-index: 1;
+}
+
+#banner2:after {
+    position: absolute;
+    content: '\f144';
+    font-family: FontAwesome;
+    font-size: 60px;
+    left: 50%;
+    margin-left: -30px;
+    top: 50%;
+    margin-top: -15px;
+    color: #1a252b;
+    border-radius: 10px;
+    transition: 300ms ease all;
+    background: #ccd2d2;
+}
+
+#banner2:hover:after {
+    color: #cc181e;
+    transition: 300ms ease all;
+}
+
+.modal-body embed {
+    height: 450px;
+}
+
+button.myBtn {
+    border: 4px solid #179046;
+    position: relative;
+}
+
+button.myBtn:after {
+    position: absolute;
+    content: '\f01d';
+    font-family: FontAwesome;
+    font-size: 50px;
+    left: 50%;
+    margin-left: -25px;
+    top: 50%;
+    color: #179046;
+    transition: 300ms ease all;
+}
+
+button.myBtn:hover:after {
+    color: #ff9800;
+    transition: 300ms ease all;
+}
+
+body.home .product-layout a.btn-primary {
+    font-size: 14px;
+    text-transform: none;
+}
+
+.carousel-inner>.item>a>img,
+.carousel-inner>.item>img {
+    width: 100%;
+}
+
+.html-count.info-2 {
+    padding-top: 30px;
+    padding-bottom: 30px;
+    margin-top: 100px;
+}
+
+.html-count.info-2 .info-img {
+    height: auto;
+    position: relative;
+}
+
+.html-count.info-2 .info-img img {
+    width: 100%;
+    position: absolute;
+    top: -70px;
+    right: 0px;
+    z-index: 99;
+    display: block;
+    padding: 0px 15px;
+}
+
+.yith_magnifier_gallery li {
+    margin-right: 16px;
+    width: 86px !important;
+}
+
+.woocommerce div.product div.images a img {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+.row.banner {
+    padding: 0px;
+    margin: 0px;
+}
+
+.banner-box {
+    margin-top: -40px;
+    box-sizing: border-box;
+    overflow: hidden;
+    padding: 0px;
+}
+
+.banner-box a {
+    display: block;
+    width: 100%;
+}
+
+.title-banner {
+    padding: 56px 10px 53px;
+    text-align: center;
+    color: #fff;
+    background: transparent;
+}
+
+.title-banner h3 {
+    font-size: 36px;
+    line-height: normal;
+    font-weight: bold;
+    color: #fff;
+}
+
+.title-banner p {
+    font-size: 22px;
+    line-height: 24px;
+}
+
+.banner-box .img-banner {
+    overflow: hidden;
+    margin: 0px;
+    padding: 0px;
+    background: transparent;
+}
+
+.banner-box a .img-banner img {
+    transform: scale(1);
+    transition: 300ms ease all;
+}
+
+.banner-box a:hover .img-banner img {
+    transform: scale(1.2);
+    opacity: 0.7;
+    transition: 300ms ease all;
+}
+
+.custom_banner_box__1 a {
+    background: #f7c448;
+}
+
+.custom_banner_box__1 a:hover {
+    background: #65453b;
+}
+
+.custom_banner_box__2 a {
+    background: #ff8b67;
+}
+
+.custom_banner_box__2 a:hover {
+    background: #f26d7d;
+}
+
+.custom_banner_box__3 a {
+    background: #a0db87;
+}
+
+.custom_banner_box__3 a:hover {
+    background: #5ed1c3;
+}
+
+.img-circle img {
+    border: 4px solid #179046;
+    border-radius: 50%;
+    max-width: 92%;
+    margin: 0px auto;
+    display: block;
+}
+
+.img-circle {
+    display: block;
+    position: relative;
+    margin: 0px auto 10px;
+    padding: 0px 30px 30px;
+}
+
+.img-circle:after {
+    display: block;
+    position: absolute;
+    height: 81px;
+    width: 274px;
+    content: ' ';
+    background: url("img/bg-image-circle.png") no-repeat center;
+    left: 50%;
+    margin-left: -137px;
+    bottom: 30px;
+}
+
+.banner-category a {
+    text-align: center;
+    display: block;
+    color: #ff9800;
+}
+
+.banner-category a h3 {
+    color: #ff9800;
+    text-transform: uppercase;
+    font-size: 25px;
+    transition: 300ms ease all;
+}
+
+.banner-category a:hover h3 {
+    color: #179046;
+    transition: 300ms ease all;
+}
+
+.container.banner,
+#welcome {
+    padding: 100px 0px 50px;
+    background: #F4EEDE;
+}
+
+.parallax-featured {
+    padding: 50px 0;
+}
+
+.parallax-featured.html-count span {
+    height: auto;
+}
+
+.home .blog_articles.box {
+    padding-top: 60px;
+}
+
+h2.welcome-onasa {
+    font: 42px/40px "Great Vibes", cursive;
+    margin: 0px 20px;
+    padding: 10px 0px 0;
+    color: #179046;
+}
+
+.box-onasa {
+    padding: 50px 15px 30px;
+}
+
+#welcome .welcome-onasa {
+    font-family: 'Great Vibes', cursive;
+}
+
+#welcome h2,
+#welcome h3 {
+    color: #179046;
+}
+
+.product-thumb.transition {
+    background: #fff;
+}
+
+.img-flower {
+    position: relative;
+    padding-bottom: 20px;
+}
+
+.img-flower img {
+    display: block;
+    text-align: center;
+    margin: 0px auto 10px;
+}
+
+.img-flower:before {
+    left: 50%;
+    margin-left: 20px;
+}
+
+.img-flower:after {
+    right: 50%;
+    margin-right: 20px;
+}
+
+.img-flower:before,
+.img-flower:after {
+    position: absolute;
+    content: "";
+    background: #181818;
+    display: inline-block;
+    height: 4px;
+    position: absolute;
+    top: 8px;
+    width: 42px;
+}
+
+@media screen and (min-width: 768px) {
+    .modal-dialog {
+        width: 1200px;
+        margin: 30px auto;
+        max-width: 100%;
+    }
+}
+
+.woocommerce div.product p.description {
+    font-size: 14px;
+    line-height: 22px;
+}
+
+@media (max-width: 800px) {
+  .stacktable.large-only { display: none; }
+  .stacktable.small-only { display: table; }
+  .hoptacdautu .tab-content .table>tbody>tr>td {
+    min-width: 0;
+  }
+}
+.nf-form-cont input[type="submit"],.nf-form-cont button,.nf-form-cont input[type="button"] {
+    background: #179046;
+    padding: 5px 30px;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+.nf-form-cont button:hover,
+.nf-form-cont input[type="submit"]:hover,
+.nf-form-cont input[type="button"]:hover {
+    background: #ff9800;
+}
+.nf-form-cont .nf-form-title h3{
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 20px;
+    text-transform: uppercase;
+}
+.subiz_conversionin {
+    height: 180px !important;
+}
+#hieuquadautu .btn-dautu, #post-6 .btn-dautu {
+    margin-left: 20px;
+}
+.carousel-inner, .carousel-inner .item {
+    max-height: 500px;
+}
+.carousel-caption {
+    top: 35%;
+}
+.list-unstyled {
+    padding-left: 0;
+    list-style: none;
+}
+.carousel-list li {
+    color: #fff;
+    font-size: 17px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    font-weight: 600;
+    font-family: arial,helvetica,sans-serif;
+    padding: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    line-height: 23px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+.carousel-list li {
+    background:rgba(23,144,70, 0.8);
+}
+.carousel-list li:nth-child(1) {
+        -webkit-animation-delay: .3s;
+    -moz-animation-delay: .3s;
+    -ms-animation-delay: .3s;
+    -o-animation-delay: .3s;
+    animation-delay: .3s;
+}
+.carousel-text .btn-primary {
+    font-size: 18px;
+    color: #fff;
+    display: inline-block;
+    transition: all 0.4s ease 0s;
+    padding: 10px 10px 10px 10px;
+    -webkit-transition: all ease 0.8s;
+    -moz-transition: all ease 0.8s;
+    transition: all ease 0.8s;
+    margin-bottom: 20px;
+    box-shadow: 0px !important;
+    font-family: arial,helvetica,sans-serif;
+    border: 2px solid #179046;
+    background-size: 100% 200%;
+    background-color: #179046;
+    background-image: linear-gradient(to bottom, #179046 50%, #fff 50%);
+}
+.carousel-text h1 {
+    margin: 0 0 0px 0;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: 2.5em;
+    font-family: arial,helvetica,sans-serif;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    line-height: 1.4em;
+    background: rgba(0,0,0,0.6);
+    -webkit-animation-delay: .3s;
+    -moz-animation-delay: .3s;
+    -ms-animation-delay: .3s;
+    -o-animation-delay: .3s;
+    animation-delay: .3s;
+}

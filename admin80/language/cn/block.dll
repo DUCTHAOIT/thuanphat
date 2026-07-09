@@ -1,0 +1,21 @@
+##
+## DO NOT MODIFY THIS FILE BY HAND!
+##
+"Cannot find page"=>"Không tìm thấy danh sách các trang!",
+"Page name"=>"Tên trang",
+"Left"=>"Trái",
+"Center"=>"Giữa",
+"Right"=>"Phải",
+"Position"=>"Vị trí",
+"Status"=>"Trạng thái",
+"Path"=>"Đường dẫn",
+"Block description"=>"Miêu tả block",
+"Block content"=>"Nội dung",
+"Cannot write file"=>"Không thể ghi file lên hosting",
+"Create date"=>"Ngày tạo",
+"File path"=>"Đường dẫn file",
+"Block list"=>"Danh sách block",
+"Not block"=>"Chưa có block",
+"Block exist"=>"Block đã tồn tại",
+"Cannot create block"=>"Không thêm được block!",
+"Cannot delete block"=>"Không xóa được block!",

@@ -1,0 +1,8 @@
+##
+## DO NOT MODIFY THIS FILE BY HAND!
+##
+#--------Product-------------
+"Name"=>"Người hỏi",
+"Date"=>"Ngày hỏi",
+"Question"=>"Câu hỏi",
+"Send question"=>"Gửi câu hỏi",

@@ -1,0 +1,46 @@
+/**
+ * Dtn_News extension
+ * 
+ * NOTICE OF LICENSE
+ * 
+ * This source file is subject to the MIT License
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/mit-license.php
+ * 
+ * @category   	Dtn
+ * @package		Dtn_News
+ * @copyright  	Copyright (c) 2014
+ * @license		http://opensource.org/licenses/mit-license.php MIT License
+ */
+.tree,.tree ul,.tree li{list-style:none;margin:0;padding:0;}
+.tree{}
+.tree li{line-height:35px;margin-top:1px;position:relative;width:100%;}
+* html .tree li{float:left;display:inline;}
+.tree li a{padding-left:28px;background:url(../images/cat_simple_bg.png) no-repeat 0 0;}
+.tree li span{cursor:auto;float:left;font-size:0;height:28px;left:0px;position:absolute;top:7px;width:21px;}
+.tree li span,.tree li span.collapsed{background:url(../../images/dtn_news/collapsed.png) no-repeat 0 0;}
+.tree li span.expanded{background:url(../../images/dtn_news/expanded.png) no-repeat 0 0;}
+.tree li ul{margin-left:28px; 
+	padding: 7px 0 5px;
+	border: none;
+	margin: -7px 0 -7px;
+	position: relative;
+	zoom: 1;
+	}
+.tree li ul > li:first-child {
+	}
+.tree li ul > li:last-child {
+
+	padding-bottom: 12px
+	}	
+.tree:after,.tree ul:after{clear:both;content:".";display:block;height:0;visibility:hidden;}
+.tree,.tree ul{display:block;}
+.tree li.map-category{font-weight:bold;}
+.tree li.map-product{font-weight:normal;}
+.tree li.map-product a{color:#203548;}
+/* \*/ .tree,.tree ul{min-height:1%; margin-top:12px;}
+* html .tree,* html .tree ul{height:1%;}
+
+.news-avatar img{ border:1px solid #ccc;
+padding:1px;}

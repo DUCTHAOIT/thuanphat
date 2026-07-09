@@ -1,0 +1,65 @@
+/* CSS Document */
+.classtd{
+	margin:10px auto;
+	width: 700px;
+	font: 75%/120% Arial, Helvetica, sans-serif;
+	padding-left:60px;
+}
+.message_list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	width: 500px;
+}
+.message_list li {
+	padding:0 10px 0 10px;
+	margin: 0;
+	background: url(http://vtmstone.com/run/images/message-bar.gif) no-repeat;
+	width:500px;
+}
+.message_head {
+	padding: 0px 10px;
+	cursor: pointer;
+	position: relative;
+	line-height:22px;
+}
+.message_head .timestamp {
+	color: #666666;
+	font-size: 95%;
+	position: absolute;
+	right: 10px;
+	top: 5px;
+}
+.message_head cite {
+	font-size: 100%;
+	font-weight: bold;
+	font-style: normal;
+}
+.message_body {
+	padding: 5px 10px 0px 15px;
+}
+.collapse_buttons {
+	text-align: right;
+	border-top: solid 1px #e4e4e4;
+	padding: 5px 0;                               
+	width: 383px;
+}
+.collapse_buttons a {
+	margin-left: 15px;
+	float: right;
+}
+.show_all_message {
+	background: url(http://vtmstone.com/run/images/tall-down-arrow.gif) no-repeat right center;
+	padding-right: 12px;
+}
+.show_recent_only {
+	display: none;
+	background: url(http://vtmstone.com/run/images/tall-up-arrow.gif) no-repeat right center;
+	padding-right: 12px;
+}
+.collpase_all_message {
+	background: url(http://vtmstone.com/run/images/collapse-all.gif) no-repeat right center;
+	padding-right: 12px;
+	color: #666666;
+}
+

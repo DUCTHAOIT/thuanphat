@@ -1,0 +1,107 @@
+.ad_title_ctn{
+    padding: 5px 10px;
+    background-color: #DDE4ED;
+    border: 1px solid #CCC;
+    -moz-border-radius: 5px 5px 0px 0px;
+    -webkit-border-radius: 5px 5px 0px 0px;
+    border-radius: 5px 5px 0px 0px;
+}
+
+.ad_title_ctn h2{
+    font: normal 1.3em Verdana, Arial, Helvetica, sans-serif;
+    text-shadow: 3px 3px 3px rgba(255,255,255,0.6);
+    color: #4c4c4c;
+    width: 300px;
+}
+
+
+.ad_dis_lable{
+    padding: 5px 0px;
+    font: normal 1em Verdana, Arial, Helvetica, sans-serif;
+    color: #4c4c4c;
+    float: left;
+    width: 100px;
+}
+
+.ad_dis_component{
+    padding: 5px 0px;
+    font: normal 1em Verdana, Arial, Helvetica, sans-serif;
+    color: #4c4c4c;
+    float: left;
+    width: 300px;
+}
+
+
+.ad_distribution_imagebox_ctn{
+
+}
+
+.ad_distribution_imagebox_ctn a{
+    color:#4476a9;
+    font: normal 0.9em Verdana, Arial, Helvetica, sans-serif;
+    text-shadow: 3px 3px 3px rgba(255,255,255,0.6);
+    text-decoration: none;
+}
+
+.ad_distribution_imagebox_ctn a:hover{
+    text-decoration: underline;
+}
+
+.head_title{
+    float: left; width: 70px;
+    font: bold 1em Verdana, Arial, Helvetica, sans-serif;
+    text-shadow: 3px 3px 3px rgba(255,255,255,0.6);
+    color: #4c4c4c;
+    padding: 3px;
+}
+
+div.lable_item {
+    font-size: 1em;
+    font-weight: bold;
+    padding: 5px 5px;
+    /*font: normal 1em Verdana, Arial, Helvetica, sans-serif;*/
+    color: #4c4c4c;
+    float: left;
+    width: 100px;
+
+}
+
+div.info_item {
+    font-size: 1em;
+    font-weight: normal;
+    padding: 5px 5px;
+    /*font: normal 1em Verdana, Arial, Helvetica, sans-serif;*/
+    color: #4c4c4c;
+    float: left;
+    width: 250px;
+
+}
+
+div.cross_line{
+    height: 1px;
+    background-color: #CCC;
+    margin: 15px 0px;
+}
+
+span.result-status{
+    font: normal 0.9em Verdana, Arial, Helvetica, sans-serif;
+    color: red;
+    padding: 0px 20px;
+}
+
+#tblAdRolePrivilege{
+    width: 100%; border: 1px solid #CCC;
+}
+
+#tblAdRolePrivilege td{
+    padding: 7px;
+    border-right: 1px solid #CCC;
+    border-bottom: 1px solid #CCC;
+    font-weight: bold;
+    font-size: 1em;
+    text-shadow: 3px 3px 3px rgba(255,255,255,0.6);
+    color: #4c4c4c;
+
+
+
+}

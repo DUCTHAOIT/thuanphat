@@ -1,0 +1,66 @@
+body {
+    font: normal 12px tahoma,arial,verdana,sans-serif;
+    margin:0;
+    padding:0;
+}
+
+.fl{float: left}
+.title{font-weight: bold}
+.fr{float: right}
+.pr5{padding-right: 5px}
+.pl5{padding-left: 5px}
+.p5{padding: 5px}
+
+.pl20{padding-left: 20px}
+.pt5{padding-top: 5px}
+.pb5{padding-bottom: 5px;}
+.pt10{padding-top: 10px}
+.pb10{padding-bottom: 10px;}
+.pt15{padding-top: 15px}
+.p10{padding: 10px}
+.pr10{padding-right: 10px}
+
+A.title:link{ text-decoration:none; color:#3B362B; font-weight:bold;}
+A.title:visited{ color:#3B362B; text-decoration:none; font-weight:bold;}
+A.title:hover{ color:#3B362B; text-decoration:none; text-decoration: underline; font-weight:bold;}
+A.title:active{ text-decoration:none; color:#3300FF; font-weight:bold;}
+
+fieldset{
+    border: 1px solid #ccc;
+}
+legend{color: #666666; font-weight: bold}
+.yellow{color: yellow}
+.red{color: red}
+.north{
+    height:40px !important;
+    background-image: url(images/backend/header-bag.png) !important;
+    background-repeat: repeat-x;
+}
+.center{}
+
+.clear{ clear:both}
+
+.admin-menu{
+    padding: 3px;
+    float: left;
+}
+.tabs-header{
+    background: #f0f0f0 !important;
+}
+.welcome-admin{
+    text-align: right;
+    padding-right: 20px;
+    padding-top: 5px;
+}
+
+
+.note-tip {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    float: left;
+}
+ul {
+    list-style: none outside none;
+    padding: 0;
+}

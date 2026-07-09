@@ -1,0 +1,9 @@
+<?php
+	$urlDefine=array("htmlpage"=>"htmlpage/",
+					 "article"=>"bai-viet/", 
+					 "download"=>"download/", 
+					 "contact"=>"lien-he/",
+					 "faq"=>"y-kien/",
+					 "partner"=>"doi-tac/",
+					 "product"=>"san-pham/");
+?>

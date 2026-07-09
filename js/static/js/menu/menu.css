@@ -1,0 +1,181 @@
+/**
+ *********************************************
+ * Prototype of styles for horizontal CSS-menu
+ * @data 30.06.2009
+ *********************************************
+ * (X)HTML-scheme:
+ *  <div id="menu">
+ *      <ul class="menu">
+ *          <li><a href="#" class="parent"><span>level 1</span></a>
+ *              <div><ul>
+ *                  <li><a href="#" class="parent"><span>level 2</span></a>
+ *                      <div><ul><li><a href="#"><span>level 3</span></a></li></ul></div>
+ *                  </li>
+ *              </ul></div>
+ *          </li>
+ *          <li class="last"><a href="#"><span>level 1</span></a></li>
+ *      </ul>
+ *  </div>
+ *********************************************
+ */
+
+/* menu::base */
+div#menu {
+    background-color: #1966c0;
+    /*height: 38px;*/
+    /*margin-top: 5px;*/
+    /*background:url(images/nav-bg.png) repeat-x;*/
+    /*_background:url(images/nav-bg.gif) repeat-x;*/
+}
+
+div#menu ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    margin: 0 auto;
+    /*width: 600px;*/
+    /*float: left;*/
+}
+div#menu ul.menu {
+    /*padding-left: 30px;*/
+    /*float:left;*/
+    max-width: 970px;
+}
+
+div#menu li {
+    position: relative;
+    z-index: 9;
+    margin: 0;
+    padding: 0;
+    display: block;
+    float: left;
+}
+   
+div#menu li:hover>ul {
+    left: -2px;
+}
+
+div#menu li div {
+    list-style: none;
+    float: left;
+    position: absolute;
+    /*top: 35px;*/
+    /*left: 10px;*/
+    width: 200px;
+    z-index: 11;
+    visibility: hidden;
+    padding: 3px 0 3px 0px;
+    /*background: url(images/submenu-bottom.png) no-repeat 7px bottom;
+    _background-image: url(images/submenu-bottom.gif);*/
+    background: #1966c0;
+    border: 1px solid #b4d8ee;
+}
+div#menu li:hover>div {
+    visibility: visible;
+}
+
+div#menu li.current a {}
+
+/* menu::level1 */
+div#menu a {
+    position: relative;
+    z-index: 10;
+    display: block;
+    margin-top: 3px;
+    padding: 6px 10px;
+    text-decoration: none;
+}
+div#menu a.active{
+    background-color: #5f9de8;
+    border-radius: 5px 5px 0px 0px;
+}
+div#menu span {
+    font: normal 12px Arial,sans-serif;
+    color: #ffffff;
+    font-weight:bold;
+    text-transform:uppercase;
+    display: block;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    padding: 5px;
+}
+
+div#menu ul a:hover span {
+    color: #b4d8ee;
+}
+
+/*div#menu li { background: url(images/nav_separator.png) top left no-repeat; }*/
+/*div#menu li.last span{*/
+    /*background: url(images/nav_separator.png) top right no-repeat;*/
+    /*padding: 18px 10px 16px 0;*/
+/*}*/
+
+/* menu::level2 */
+div#menu ul ul li {
+    background: none;
+    z-index: 9;
+    border-top: 1px solid #b4d8ee;
+}
+div#menu ul ul li:hover{
+    background-color: #b4d8ee; color: red
+}
+div#menu ul ul li:first-child{
+    border-top: 0px solid;
+}
+div#menu ul ul {
+    z-index: 12;	
+    padding: 0;
+    /*background: rgb(226,226,226) url(images/nav_dropdown_grad.png) right top no-repeat;*/
+    margin-top:0px;
+    margin-left:4px;
+    margin-right:5px;
+}
+div#menu ul ul a {
+  	/*width: 184px;*/
+	  padding: 0px 7px 3px 8px;
+    height: auto;
+    float: none;
+    display: block;
+    background:none;
+    margin-bottom: 2px;
+    z-index: -1;
+}
+div#menu ul ul a span {
+	padding: 0 10px 0px 10px;
+    line-height: 20px;
+
+    font-weight:normal;
+    text-transform: none;
+    background:none;
+}
+div#menu ul ul a:hover {
+    color: red;
+    /*background: url(images/submenu-selected-bottom.gif) no-repeat 8px bottom;*/
+}
+div#menu ul ul a:hover span {
+    /*background: url(images/submenu-selected-top.gif) no-repeat 0px 0px;*/
+    color: #fff;
+}
+
+div#menu ul ul li.last { background: none; }
+div#menu ul ul li {
+    width: 190px;
+}
+
+/* menu::level3 */
+div#menu ul ul div {
+    width: 208px;
+    margin: -50px 0 0 190px !important;
+    height: auto;
+    _padding: 0 0 9px 3px;
+}
+div#menu ul ul ul {
+	_padding-right:1px;
+}
+
+/* lava lamp */
+div#menu li.back {
+}
+div#menu li.back .left {
+}
+

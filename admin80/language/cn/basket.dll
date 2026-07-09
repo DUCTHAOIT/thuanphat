@@ -1,0 +1,24 @@
+##
+## DO NOT MODIFY THIS FILE BY HAND!
+##
+#--------Product-------------
+"Added to cart"=>"Đã thêm vào giỏ hàng",
+"Product name"=>"Tên sản phẩm",
+"Price"=>"Giá",
+"Amount"=>"Số lượng",
+"Total"=>"Tổng cộng",
+"No products in cart"=>"Không có sản phẩm nào trong giỏ hàng!",
+"Information login"=>"Thông tin đăng nhập",
+"New Customer"=>"Đăng ký thành viên",
+"I am a new customer"=>"Nếu bạn chưa có tài khoản hãy đăng ký ngay",
+"Note"=>"Lưu ý",
+"Your Visitors Cart contents will be merged with your Members Cart contents once you have logged on."=>"Để đặt hàng trự tuyến bạn phải đăng nhập tài khoản, nếu chưa có tài khoản thành viên bạn hãy đăng ký ở dưới. Hãy là thành viên của Facom để nhận được những ưu đãi hỗ trợ và nhiều thông tin, phần quà bất ngờ từ chúng tôi.",
+"Shipping Address"=>"Thông tin khách hàng",
+"Fullname"=>"Họ tên",
+"Telephone"=>"Điện thoại",
+"Company Name"=>"Tên công ty",
+"Street Address"=>"Địa chỉ",
+"Postcode"=>"Số thẻ Vip",
+"Preis"=>"Giá",
+"Gesamtssumme"=>"Thành tiền",
+"Add Comments About Your Order"=>"Ghi chú",
