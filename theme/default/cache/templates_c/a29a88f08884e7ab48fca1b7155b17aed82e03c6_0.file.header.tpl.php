@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 3.1.36, created on 2026-07-08 06:26:45
+/* Smarty version 3.1.36, created on 2026-07-10 05:03:42
   from 'C:\xampp\htdocs\thuanphatitc.vn\theme\default\templates\header.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '3.1.36',
-  'unifunc' => 'content_6a4dd185a8a1a2_58417105',
+  'unifunc' => 'content_6a50610e4e86a2_08563138',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     'a29a88f08884e7ab48fca1b7155b17aed82e03c6' => 
     array (
       0 => 'C:\\xampp\\htdocs\\thuanphatitc.vn\\theme\\default\\templates\\header.tpl',
-      1 => 1783309158,
+      1 => 1783652285,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_6a4dd185a8a1a2_58417105 (Smarty_Internal_Template $_smarty_tpl) {
+function content_6a50610e4e86a2_08563138 (Smarty_Internal_Template $_smarty_tpl) {
 ?><!DOCTYPE html>
 
 <html lang="en">
@@ -813,8 +813,10 @@ function content_6a4dd185a8a1a2_58417105 (Smarty_Internal_Template $_smarty_tpl)
 
 <!-- slide -->
 
+	<?php if (!$_smarty_tpl->tpl_vars['hide_slide']->value) {?>
 	<?php echo call_user_func_array( $_smarty_tpl->smarty->registered_plugins[Smarty::PLUGIN_FUNCTION]['slide'][0], array( array(),$_smarty_tpl ) );?>
 
+<?php }?>
 
   <!-- end slide --><?php }
 }

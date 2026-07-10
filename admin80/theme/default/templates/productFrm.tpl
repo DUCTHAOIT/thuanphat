@@ -72,6 +72,13 @@
 			<input name="special_promotion" type="checkbox" {if $arr.special_promotion==1} checked="checked" {/if} />
 		</td>
 	</tr>
+	<tr>
+		<td align="right" style="padding-right:10px" nowrap="nowrap">Combo kích hoạt:</td>
+		<td>
+			<input name="is_activation_combo" type="checkbox" {if $arr.is_activation_combo==1} checked="checked" {/if} />
+			<em>(Đơn hàng mua sản phẩm này sẽ kích hoạt business_active cho khách)</em>
+		</td>
+	</tr>
   <tr>
     <td align="right" style="padding-right:10px" nowrap="nowrap">Thứ tự:</td>
     <td><input type="text" class="text" name="sort" style="width:40" value="{if !$arr.sort}1{else}{$arr.sort}{/if}" /></td>

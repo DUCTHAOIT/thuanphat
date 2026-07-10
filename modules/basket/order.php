@@ -93,7 +93,7 @@ foreach ($order_items as $item) {
                     VALUES ($order_id, {$item['product_id']}, {$item['quantity']}, {$item['price']})");
 }
 
-// Hoa hồng KHÔNG được sinh ở đây nữa. Theo BUSINESS_RULES.md mục 2:
+// Hoa hồng KHÔNG được sinh ở đây nữa. Theo BUSINESS_RULES.md mục 3:
 // "Hoa hồng chỉ sinh sau khi đơn được duyệt" - việc sinh hoa hồng 9 tầng
 // đã được xử lý tại admin80/include/order_commission.php khi admin duyệt đơn.
 

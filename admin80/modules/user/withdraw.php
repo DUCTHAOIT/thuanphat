@@ -10,7 +10,7 @@ if (!isset($_SESSION['admin_logged_in'])) {
     exit;
 }*/
 
-// Duyệt/từ chối yêu cầu rút tiền. Reject sẽ hoàn lại kha_dung đã trừ lúc tạo yêu cầu (mục 5 BUSINESS_RULES.md)
+// Duyệt/từ chối yêu cầu rút tiền. Reject sẽ hoàn lại kha_dung đã trừ lúc tạo yêu cầu (mục 7 BUSINESS_RULES.md)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['transaction_id'])) {
     $transaction_id = (int) $_POST['transaction_id'];
     processWithdrawDecision($mysqli, $transaction_id, $_POST['action'] === 'approve');

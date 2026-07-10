@@ -371,5 +371,7 @@
 </header>
 <main class="main">
 <!-- slide -->
-	{slide}
+	{if !$hide_slide}
+	{slide}
+{/if}
   <!-- end slide -->

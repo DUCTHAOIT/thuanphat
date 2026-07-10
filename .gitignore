@@ -1,0 +1,25 @@
+# Uploads
+temp/
+cache/
+logs/
+video/
+phpmailer/
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Claude
+.claude/
+
+# XAMPP
+*.log
+
+# Composer
+/vendor/
+
+# Node
+/node_modules/

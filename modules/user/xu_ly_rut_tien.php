@@ -24,7 +24,7 @@ if ($amount <= 0) {
 
 require_once dirname(__FILE__) . '/../../admin80/include/order_commission.php';
 
-// Tạo yêu cầu rút + trừ ngay ví khả dụng (kha_dung) trong 1 transaction (mục 5, mục 9 BUSINESS_RULES.md)
+// Tạo yêu cầu rút + trừ ngay ví khả dụng (kha_dung) trong 1 transaction (mục 7, mục 8.2 BUSINESS_RULES.md)
 $mysqli->begin_transaction();
 try {
     // Khoá dòng ví để lấy số dư thật, tránh 2 yêu cầu rút cùng lúc trừ vượt quá số dư

@@ -1,5 +1,13 @@
 <?php
-$user_id = (int)($_GET['user_id'] ?? 0);
+session_start();
+$username = getSession("username");
+if (!isset($username) || empty($username)) {
+    header('Content-Type: application/json');
+    echo json_encode(['html' => '', 'pagination' => '']);
+    exit();
+}
+// Chỉ xem lịch sử rút tiền của chính mình, không nhận user_id từ $_GET (tránh xem được của người khác)
+$user_id = (int) getMemberNameID($username, "id");
 $page = max(1, (int)($_GET['page'] ?? 1));
 $limit = 10;
 $offset = ($page - 1) * $limit;

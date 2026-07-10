@@ -1,5 +1,5 @@
 <?php
-	global $themeName, $smarty, $lable,$lang, $moduleName,$arr_info_page,$arr_info_title, $db;	
+	global $themeName, $smarty, $lable,$lang, $moduleName,$arr_info_page,$arr_info_title, $db, $hide_slide;
 	$username=getSession("username");
 	$login_time_stamp=getSession("login_time_stamp");
 	$thoigian=time();
@@ -139,7 +139,8 @@
 	$smarty->assign('Date',$lable->_("Date"));
 	$smarty->assign('Search',$lable->_("Search"));
 	$smarty->assign('Keywords',$lable->_("Keywords"));
-	
+
+	$smarty->assign('hide_slide', !empty($hide_slide));
 
 	$smarty->display(_DOMAIN_ROOT_TEMPLATE.'/header.tpl','header_'.$lang);
 	
