@@ -124,7 +124,8 @@ function renderTree($tree)
     echo "<ul class='tpud-ftree-children'>";
     foreach ($tree as $node) {
         $activeClass = ((int) $node['business_active'] === 1) ? " tpud-ftree-node-active" : "";
-        echo "<li>";
+        $leafClass = empty($node['children']) ? " tpud-ftree-leaf" : "";
+        echo "<li class=\"$leafClass\">";
         echo "<span class=\"$activeClass\">F{$node['level']} | " . htmlspecialchars($node['name']) . " (" . htmlspecialchars($node['email']) . ") - Doanh số: " . number_format($node['sales'], 0, ",", ".") . "đ</span>";
         if (!empty($node['children'])) {
             renderTree($node['children']);

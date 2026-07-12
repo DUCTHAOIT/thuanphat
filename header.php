@@ -27,7 +27,11 @@
 	   $affiliate_id = $_COOKIE['affiliate_id'];
 	   $smarty->assign('affiliate_id',$affiliate_id);
 	}
-		
+
+	$login_error=getSession("login_error");
+	setSession("login_error","");
+	$smarty->assign('login_error',$login_error);
+
 	$smarty->assign('username',$username);
 	$MemberName=getMemberNameID($username,"name");
 	$MemberEmail=getMemberNameID($username,"username");

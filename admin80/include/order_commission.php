@@ -60,6 +60,7 @@ function processOrderApproval($mysqli, $order_id) {
         activateBusinessIfEligible($mysqli, $buyerId, $order_id);
         activateCommissionIfEligible($mysqli, $buyerId, $order_id);
         generateDirectCommission($mysqli, $order_id, $buyerId);
+        generateBackfillSpilloverCommissionIfEligible($mysqli, $order_id, $buyerId);
 
         $stmt = $mysqli->prepare("UPDATE orders SET commission_generated = 1 WHERE id = ?");
         $stmt->bind_param("i", $order_id);
@@ -726,6 +727,13 @@ function placeSpilloverMember($mysqli, $sponsorUserId, $waitingUserId, $targetPa
             generateCardPointBonus($mysqli, (int) $activationOrder['id'], $waitingUserId, $fund);
             generateRecurringConsumptionBonus($mysqli, (int) $activationOrder['id'], $waitingUserId, $fund);
             checkAndAwardRankBonuses($mysqli, (int) $activationOrder['id'], $waitingUserId, $fund);
+
+            // Đánh dấu đã tính hoa hồng điều tầng cho vị trí này (chống generateBackfillSpilloverCommissionIfEligible
+            // tính lại lần 2 nếu người này còn mua thêm đơn combo khác sau này - xem hàm đó bên dưới).
+            $stmt = $mysqli->prepare("UPDATE spillover_tree SET commission_order_id = ? WHERE user_id = ?");
+            $stmt->bind_param("ii", $activationOrder['id'], $waitingUserId);
+            $stmt->execute();
+            $stmt->close();
         }
 
         $mysqli->commit();
@@ -735,6 +743,42 @@ function placeSpilloverMember($mysqli, $sponsorUserId, $waitingUserId, $targetPa
         error_log("placeSpilloverMember waitingUserId={$waitingUserId} sponsor={$sponsorUserId}: " . $e->getMessage());
         return ['ok' => false, 'error' => 'Lỗi hệ thống, vui lòng thử lại.'];
     }
+}
+
+// Tính bù hoa hồng điều tầng + 3 loại thưởng (mục 6 BUSINESS_RULES.md) cho 1 người ĐÃ có sẵn vị trí trong
+// spillover_tree nhưng CHƯA từng được tính (trường hợp business_active bị sửa tay = 1 trước khi có đơn
+// kích hoạt thật -> lúc xếp cây trong placeSpilloverMember() không tìm thấy đơn nào nên bỏ qua toàn bộ,
+// không phải pending mà không sinh ra gì cả). Gọi từ processOrderApproval() ngay sau khi 1 đơn kích hoạt
+// thật được duyệt, để tuyến trên trong cây điều tầng không bị mất hoa hồng vĩnh viễn.
+// Cột spillover_tree.commission_order_id (database/migration_2026-07-12_spillover_commission_backfill.sql)
+// chống tính 2 lần cho cùng 1 vị trí (mục 8.1) - khoá dòng bằng FOR UPDATE trước khi kiểm tra.
+function generateBackfillSpilloverCommissionIfEligible($mysqli, $order_id, $buyerId) {
+    if (!orderContainsActivationCombo($mysqli, $order_id)) return;
+
+    $stmt = $mysqli->prepare("SELECT id, commission_order_id FROM spillover_tree WHERE user_id = ? FOR UPDATE");
+    $stmt->bind_param("i", $buyerId);
+    $stmt->execute();
+    $node = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    // Chưa được xếp vào cây điều tầng -> không có gì để tính bù. placeSpilloverMember() sẽ tự tính đúng
+    // lúc họ được xếp sau này (khi đó đơn kích hoạt này đã tồn tại, sẽ được tìm thấy bình thường).
+    if (!$node) return;
+
+    // Đã tính rồi (lúc xếp cây, hoặc đã tính bù từ 1 đơn trước đó) -> không tính lại (mục 8.1)
+    if ($node['commission_order_id'] !== null) return;
+
+    $fund = calculateCommissionFund($mysqli, $order_id);
+
+    generateSpilloverCommission($mysqli, $order_id, $buyerId, $fund);
+    generateCardPointBonus($mysqli, $order_id, $buyerId, $fund);
+    generateRecurringConsumptionBonus($mysqli, $order_id, $buyerId, $fund);
+    checkAndAwardRankBonuses($mysqli, $order_id, $buyerId, $fund);
+
+    $upd = $mysqli->prepare("UPDATE spillover_tree SET commission_order_id = ? WHERE user_id = ?");
+    $upd->bind_param("ii", $order_id, $buyerId);
+    $upd->execute();
+    $upd->close();
 }
 
 // Chia hoa hồng cây lấp tầng 8 tầng (F1..F8), đọc sys_config.spillover_f1..f8 (mặc định F1=16%,

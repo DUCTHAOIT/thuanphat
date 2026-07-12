@@ -8,7 +8,7 @@
 		}else{
 			$smarty->assign('Login', $lable->_("Login"));
 			$smarty->assign('ret_page',$ret_page);
-			//$smarty->display(_DOMAIN_ROOT_TEMPLATE.'/bakestLogin.tpl','bakestLogin_');			
+			//$smarty->display(_DOMAIN_ROOT_TEMPLATE.'/bakestLogin.tpl','bakestLogin_');
 			$smarty->display(_DOMAIN_ROOT_TEMPLATE.'/userFrmLogin.tpl','userFrmLogin_');
 		}
 		

@@ -1,0 +1,159 @@
+/* Content wrapper */
+.hp-wrap {
+    padding: 30px 15px 50px;
+    max-width: 1140px;
+    margin: 0 auto;
+}
+
+.hp-des {
+    margin-bottom: 20px;
+    color: #4b5563;
+}
+
+.hp-content {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #374151;
+}
+
+.hp-content p {
+    margin: 0 0 14px;
+}
+
+.hp-content img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Section blocks pasted from CMS content (hp-section / hp-cards / hp-value) */
+.hp-section {
+    margin: 40px 0;
+}
+
+.hp-section-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #16a34a;
+    text-align: center;
+    margin-bottom: 18px;
+}
+
+.hp-lead {
+    font-size: 17px;
+    color: #374151;
+    margin: 0 0 10px;
+}
+
+.hp-figure {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.hp-figure img {
+    display: inline-block;
+    max-width: 640px;
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, .12);
+}
+
+.hp-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-top: 20px;
+}
+
+.hp-card {
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.hp-card-icon {
+    font-size: 22px;
+    color: #16a34a;
+    margin-bottom: 10px;
+}
+
+.hp-card-title {
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 6px;
+}
+
+.hp-card-text {
+    font-size: 14.5px;
+    color: #4b5563;
+    line-height: 1.6;
+}
+
+.hp-values {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    margin-top: 20px;
+}
+
+.hp-value {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-left: 4px solid #16a34a;
+    border-radius: 8px;
+    padding: 18px 20px;
+}
+
+.hp-value-title {
+    font-weight: 700;
+    color: #16a34a;
+    font-size: 17px;
+    margin-bottom: 6px;
+}
+
+.hp-value-text {
+    font-size: 14.5px;
+    color: #4b5563;
+    line-height: 1.6;
+}
+
+.hp-stakeholders {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+}
+
+.hp-stakeholders li {
+    padding: 10px 0 10px 26px;
+    position: relative;
+    border-bottom: 1px dashed #e5e7eb;
+    font-size: 14.5px;
+    color: #4b5563;
+    line-height: 1.6;
+}
+
+.hp-stakeholders li:last-child {
+    border-bottom: none;
+}
+
+.hp-stakeholders li::before {
+    content: "\f058";
+    font-family: "FontAwesome";
+    position: absolute;
+    left: 0;
+    top: 10px;
+    color: #16a34a;
+}
+
+.hp-stakeholders strong {
+    color: #111827;
+}
+
+@media (max-width: 768px) {
+
+    .hp-cards,
+    .hp-values {
+        grid-template-columns: 1fr;
+    }
+}

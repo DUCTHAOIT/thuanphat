@@ -233,7 +233,7 @@ nguyên = 0, mặc định):
 
 - Thành viên **được** xếp vào cây lấp tầng, xét danh hiệu, tái tiêu dùng bình thường (theo `business_active`).
 - Thành viên **vẫn nhận** hoa hồng cây trực tiếp bình thường (mục 4, không phụ thuộc 2 cờ này).
-- Hoa hồng cây điều tầng + các thưởng ở mục 6 phát sinh cho thành viên này **đều pending** (vì `commission_active = 0`), chưa cộng ví.
+- Hoa hồng cây điều tầng + các thưởng ở mục 6: nếu lúc **được xếp vào cây** đã có sẵn đơn kích hoạt đã duyệt (dù `commission_active = 0`) thì phát sinh **pending**, chưa cộng ví. Nếu lúc xếp vào cây **chưa có đơn kích hoạt nào** (đúng ca này — chưa từng mua combo) thì **chưa phát sinh gì cả** ở bước xếp cây (không có quỹ chia hoa hồng nào để tính) — chỉ được **tính bù** khi thành viên thực sự mua đơn kích hoạt sau đó (cập nhật 2026-07-12, xem cơ chế bù ở mục 6 — "Nguồn quỹ hoa hồng + thưởng cây lấp tầng").
 - Khi thành viên đó thực sự mua 1 đơn có combo kích hoạt → `commission_active` chuyển sang 1 → toàn bộ pending được release, cộng ví hết 1 lần (`business_active` đã = 1 từ trước nên không bị set lại, không cộng lại 5tr thẻ tiêu dùng lần 2).
 
 ---
@@ -249,6 +249,7 @@ Toàn hệ thống là **1 cây chung duy nhất** (không phải mỗi người
 - Khi 1 thành viên (F1) đạt `business_active = 1` → hệ thống tự thêm F1 vào **danh sách chờ xếp tầng**, hiển thị cho người giới thiệu trực tiếp (F0). (cập nhật 2026-07-11: chuyển sang trigger database `trg_user_business_active_waitlist`, chạy bất kể `business_active` được set qua app hay sửa tay trực tiếp trong database — xem mục 5, `database/migration_2026-07-11_commission_active.sql`.)
 - Chỉ **người giới thiệu trực tiếp** mới có quyền xếp vị trí cho người mình giới thiệu.
 - F0 tự thao tác đặt vị trí trên trang cá nhân của mình, **không qua admin duyệt**.
+- (cập nhật 2026-07-12) Admin có công cụ hỗ trợ xếp vị trí **thay** F0 khi F0 nhờ hỗ trợ (`admin80/modules/sodo/xu_ly_xep_tang.php`, `?m=sodo`) — sponsor thật được tra lại từ `spillover_waiting_list` (không tin dữ liệu gửi từ client), rồi tái dùng nguyên hàm `placeSpilloverMember()` nên vẫn giữ đúng ràng buộc "chỉ được xếp trong tầm với của sponsor" như F0 tự thao tác — không phải 1 luồng nghiệp vụ khác, chỉ là admin bấm hộ.
 - F1 được đặt vào 1 vị trí trống **bất kỳ trong tầm với của F0** trong cây chung (không bắt buộc phải nằm ngay dưới F0).
 - Mỗi thành viên chỉ được xếp vị trí **1 lần duy nhất**.
 - Hạng/tầng của 1 thành viên được tính theo nhánh con tính **từ vị trí của chính người đó** trong cây chung.
@@ -256,6 +257,20 @@ Toàn hệ thống là **1 cây chung duy nhất** (không phải mỗi người
 ## Nguồn quỹ hoa hồng + thưởng cây lấp tầng
 
 Dùng chung quỹ chia hoa hồng của đơn hàng kích hoạt gói 5tr (mục 3) làm nền tính, **độc lập** với hoa hồng sơ đồ trực tiếp (không trừ lẫn nhau — xem mục 3). Thời điểm tính: lúc thành viên **được xếp vào cây**, không phải lúc admin duyệt đơn.
+
+(cập nhật 2026-07-12 — bù hoa hồng khi xếp cây trước khi có đơn kích hoạt thật): Nếu lúc xếp vào cây, thành
+viên **chưa có đơn kích hoạt nào đã duyệt** (ví dụ admin sửa tay `business_active = 1` trước khi mua combo
+thật, mục 5) → `placeSpilloverMember()` **không phát sinh gì cả** ở bước này (không có quỹ chia hoa hồng nào
+để tính, kể cả pending). Khi thành viên đó **sau này** thực sự mua 1 đơn có combo kích hoạt và được duyệt →
+`processOrderApproval()` tự động gọi thêm `generateBackfillSpilloverCommissionIfEligible()` để **tính bù**
+toàn bộ hoa hồng cây lấp tầng + 3 khoản thưởng (thẻ tiêu dùng tuần hoàn, điểm thẻ tiêu dùng, danh hiệu) ngay
+tại thời điểm đó, dùng quỹ chia hoa hồng của chính đơn kích hoạt thật này, áp dụng đúng quy tắc pending/release
+theo `commission_active` (mục 5) như bình thường. Cột `spillover_tree.commission_order_id`
+(`database/migration_2026-07-12_spillover_commission_backfill.sql`) đánh dấu vị trí đã được tính (dù tính
+ngay lúc xếp cây hay tính bù sau đó), chống tính 2 lần nếu thành viên mua thêm đơn kích hoạt khác sau này
+(mục 8.1). Code: `generateBackfillSpilloverCommissionIfEligible()` trong
+`admin80/include/order_commission.php`, gọi từ `processOrderApproval()` ngay sau khi sinh hoa hồng sơ đồ trực
+tiếp.
 
 ## Hoa hồng cây lấp tầng
 tính trên cây lấp tầng (hay điều tầng)

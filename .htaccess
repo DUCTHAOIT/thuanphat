@@ -202,6 +202,6 @@ RewriteRule ^gia-tri-cot-loi--triet-ly-dau-tu/quan-tri-rui-ro/(.*) ?m=htmlpage&i
 RewriteRule ^gioi-thieu/gia-tri-cot-loi/(.*) ?m=htmlpage&idF=632_672&id=$1
 RewriteRule ^gioi-thieu/su-menh/(.*) ?m=htmlpage&idF=632_671&id=$1
 RewriteRule ^gioi-thieu/tam-nhin/(.*) ?m=htmlpage&idF=632_670&id=$1
-RewriteRule ^vn/chinh-sach-ban-hang/(.*) ?m=htmlpage&idF=668&id=$1
+RewriteRule ^vn/chinh-sach-ban-hang/(.*) ?m=htmlpage&idF=668&id_htmlpage=9&id=$1
 RewriteRule ^vn/tuyen-dung/(.*) ?m=article&idF=669&id=$1
 RewriteRule ^vn/chinh-sach-bao-mat/(.*) ?m=htmlpage&idF=679&id_htmlpage=8&id=$1

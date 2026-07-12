@@ -403,6 +403,10 @@
     transform: rotate(90deg);
 }
 
+.tpud-ftree li.tpud-ftree-leaf::before {
+    content: none;
+}
+
 .tpud-ftree-root {
     position: relative;
     cursor: pointer;

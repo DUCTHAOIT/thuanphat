@@ -12,7 +12,7 @@
 		
 		$idF=getparamFID(getParam("idF"),false);			
 		
-		$arr=getHtmlpageID($id_htmlpage);	
+		$arr=getHtmlpageID($id_htmlpage);
 		$smarty->assign('img2',getFunctionNameID($idF,"img2"));
 		$smarty->assign('name',getFunctionNameID($idF,"name"));
 		$smarty->assign('nameFun',getFunctionNameSub($idF));
