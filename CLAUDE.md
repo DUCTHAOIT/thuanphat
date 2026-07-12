@@ -101,13 +101,10 @@ Risk
 
 Đọc các tài liệu sau trước khi sửa:
 
-docs/DATABASE.md
+
 
 docs/BUSINESS_RULES.md
 
-docs/FILE_MAP.md
-
-docs/CHANGELOG.md
 
 ---
 

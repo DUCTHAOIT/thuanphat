@@ -6,7 +6,7 @@
 	$affiliate_id = getParam("aff");
 	if($username)  
 	{ 
-		if($thoigian-$login_time_stamp >3600)   
+		if($thoigian-$login_time_stamp >604800)
 		{ 
 			session_unset(); 
 			session_destroy(); 

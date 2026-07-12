@@ -423,13 +423,40 @@
 					</div>
 				</div>
 				{else}
+			<div class="card" style="margin-bottom:15px; border:1px solid #e2e2e2; border-radius:6px; padding:12px;">
+				<strong>Chọn nguồn thanh toán</strong>
+				<div style="margin-top:8px;">
+					{if $acceptCard}
+					<label style="display:block; margin-bottom:6px;">
+						<input type="checkbox" name="use_card" id="use_card" value="1" onchange="updatePaymentPreview()" {if $cardBalance<=0}disabled{/if} />
+						<strong style="color:#fbbf24;">Điểm thẻ tiêu dùng</strong> (số dư: {format_number2 number=$cardBalance}, tối đa {$cardPaymentPercent}% giá trị đơn)
+					</label>
+					{/if}
+					{if $acceptTieuDung}
+					<label style="display:block; margin-bottom:6px;">
+						<input type="checkbox" name="use_tieu_dung" id="use_tieu_dung" value="1" onchange="updatePaymentPreview()" {if $tieuDungBalance<=0}disabled{/if} />
+						<strong style="color:#fbbf24;">Ví tiêu dùng</strong> (số dư: {format_number2 number=$tieuDungBalance})
+					</label>
+					{/if}
+					{if $acceptKhaDung}
+					<label style="display:block; margin-bottom:6px;">
+						<input type="checkbox" name="use_kha_dung" id="use_kha_dung" value="1" onchange="updatePaymentPreview()" {if $khaDungBalance<=0}disabled{/if} />
+						<strong style="color:#fbbf24;">Ví khả dụng</strong> (số dư: {format_number2 number=$khaDungBalance})
+					</label>
+					{/if}
+					{if !$acceptCard && !$acceptTieuDung && !$acceptKhaDung}
+					<div style="color:#fde68a;">Các sản phẩm trong giỏ chỉ chấp nhận thanh toán chuyển khoản.</div>
+					{/if}
+				</div>
+				<div id="paymentPreview" style="margin-top:10px; font-size:14px; background:#f8f9fa; color:#1f2937; padding:8px; border-radius:4px;"></div>
+			</div>
 				<div>
 					<div class="card-header bg-warning text-dark">
 						💳 Quét mã để thanh toán
 					</div>
 					<div class="card-body text-center">
 						<p>Vui lòng quét mã VietQR để thanh toán:</p>
-						<img src="https://img.vietqr.io/image/VCB-0251001521762-compact2.png?amount={$total}&addInfo=THANH%20TOAN%20DON%20HANG%20{$Membermobile}"
+			<img id="paymentQrImg" data-base-url="https://img.vietqr.io/image/TCB-1316833888-compact2.png?addInfo=THANH%20TOAN%20DON%20HANG%20{$Membermobile}" src="https://img.vietqr.io/image/TCB-1316833888-compact2.png?amount={$total}&addInfo=THANH%20TOAN%20DON%20HANG%20{$Membermobile}"
 							 alt="QR thanh toán" class="img-fluid" style="max-width:300px;">
 						{*<p class="mt-2"><strong>Số tiền: {format_number number=$total}đ</strong></p>
 						<p>Nội dung: THANH TOAN DON HANG {$Membermobile}</p>
@@ -452,6 +479,61 @@
 									<div style="margin-top:10px; padding-bottom: 10px">
 										<button type="button" onclick="removeImage()" class="btn btn-sm btn-danger">Xoá ảnh</button>
 									</div>
+{literal}
+<script>
+	var tpudTotalAmount = {/literal}{$total|default:0}{literal};
+	var tpudCardBalance = {/literal}{$cardBalance|default:0}{literal};
+	var tpudTieuDungBalance = {/literal}{$tieuDungBalance|default:0}{literal};
+	var tpudKhaDungBalance = {/literal}{$khaDungBalance|default:0}{literal};
+	var tpudCardPaymentPercent = {/literal}{$cardPaymentPercent|default:100}{literal};
+
+	function tpudFormatMoney(n) {
+		return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+	}
+
+	function updatePaymentPreview() {
+		var remaining = tpudTotalAmount;
+		var cardAmount = 0, tieuDungAmount = 0, khaDungAmount = 0;
+
+		if (document.getElementById("use_card") && document.getElementById("use_card").checked) {
+			var maxCardByPercent = tpudTotalAmount * (tpudCardPaymentPercent / 100);
+			cardAmount = Math.min(remaining, maxCardByPercent, tpudCardBalance);
+			remaining -= cardAmount;
+		}
+		if (document.getElementById("use_tieu_dung") && document.getElementById("use_tieu_dung").checked) {
+			tieuDungAmount = Math.min(remaining, tpudTieuDungBalance);
+			remaining -= tieuDungAmount;
+		}
+		if (document.getElementById("use_kha_dung") && document.getElementById("use_kha_dung").checked) {
+			khaDungAmount = Math.min(remaining, tpudKhaDungBalance);
+			remaining -= khaDungAmount;
+		}
+
+		var cashAmount = remaining;
+
+		var previewEl = document.getElementById("paymentPreview");
+		if (previewEl) {
+			previewEl.innerHTML =
+				"Điểm thẻ: " + tpudFormatMoney(cardAmount) + "<br>" +
+				"Ví tiêu dùng: " + tpudFormatMoney(tieuDungAmount) + "<br>" +
+				"Ví khả dụng: " + tpudFormatMoney(khaDungAmount) + "<br>" +
+				"<strong>Còn lại chuyển khoản: " + tpudFormatMoney(cashAmount) + "</strong>";
+		}
+
+		var qrImg = document.getElementById("paymentQrImg");
+		if (qrImg) {
+			var base = qrImg.getAttribute("data-base-url");
+			qrImg.src = base + "&amount=" + Math.round(cashAmount);
+		}
+	}
+
+	if (document.readyState === "loading") {
+		document.addEventListener("DOMContentLoaded", updatePaymentPreview);
+	} else {
+		updatePaymentPreview();
+	}
+</script>
+{/literal}
 									{literal}
 										<script>
 											function previewImage(event) {

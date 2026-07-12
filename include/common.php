@@ -1,6 +1,11 @@
 <?php
-	include_once("admin80/include/configSystem.php");		
-	
+	// Ghi nhớ đăng nhập thành viên 7 ngày: đặt cookie session tồn tại 604800s (không mất khi đóng trình duyệt),
+	// phải gọi trước session_start() (nằm trong configSystem.php include bên dưới).
+	$_member_session_secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+	session_set_cookie_params(604800, '/', '', $_member_session_secure, true);
+
+	include_once("admin80/include/configSystem.php");
+
 	include_once(_DOMAIN_ROOT_PATH."/admin80/include/configDatabase.php");
 	include_once(_DOMAIN_ROOT_PATH."/adodb5/adodb.inc.php");
 

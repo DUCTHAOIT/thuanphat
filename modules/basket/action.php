@@ -1,4 +1,31 @@
 <?php
+	// Giao (intersection) nguồn thanh toán được TẤT CẢ sản phẩm trong giỏ hàng hiện tại chấp nhận (mục 3
+	// BUSINESS_RULES.md, cập nhật 2026-07-11). Dùng chung cho cả trang giỏ hàng (hiện/ẩn checkbox) và
+	// modules/basket/order.php (kiểm tra lại ở server trước khi trừ tiền, không tin lựa chọn từ client).
+	// Giỏ trống hoặc sản phẩm không xác định -> mặc định cho phép cả 3 (an toàn, giống sản phẩm chưa cấu
+	// hình riêng).
+	function getAcceptedPaymentSources(){
+		global $mysqli;
+		$default = ['accept_card' => true, 'accept_tieu_dung' => true, 'accept_kha_dung' => true];
+
+		$basket = $_SESSION["basket"];
+		if (!$basket) return $default;
+
+		$ids = array_filter(array_map('intval', array_keys($basket)), function($id) { return $id > 0; });
+		if (!$ids) return $default;
+
+		$in = implode(",", $ids);
+		$res = $mysqli->query("SELECT MIN(accept_card_payment) c, MIN(accept_tieu_dung_payment) t, MIN(accept_kha_dung_payment) k FROM sys_product WHERE id IN ($in)");
+		$row = $res ? $res->fetch_assoc() : null;
+		if (!$row || $row['c'] === null) return $default;
+
+		return [
+			'accept_card' => (int) $row['c'] === 1,
+			'accept_tieu_dung' => (int) $row['t'] === 1,
+			'accept_kha_dung' => (int) $row['k'] === 1,
+		];
+	}
+
 	function getProductBasket(){
 		global $db,$lable;
 		$arr=$_SESSION["basket"];

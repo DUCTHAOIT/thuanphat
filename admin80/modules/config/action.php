@@ -16,13 +16,15 @@
 		$skype=str_replace(" ", "", trim(getParamPost("skype")));
 		$hotline=getParamPost("hotline");
 		$tel=getParamPost("tel");
-		$f1=getParamPost("f1");
-		$f2=getParamPost("f2");
-		$f3=getParamPost("f3");
 		$rewrite_url=getParamPost("rewrite_url");
 		if($rewrite_url=="on") $rewrite_url="htaccess";
 		else $rewrite_url="url";
-		
+
+		$card_payment_percent=getParamPost("card_payment_percent");
+		if($card_payment_percent==="" || !is_numeric($card_payment_percent)) $card_payment_percent=100;
+		if($card_payment_percent<0) $card_payment_percent=0;
+		if($card_payment_percent>100) $card_payment_percent=100;
+
 		$record = array();
 				
 		$record["site_name"] = $site_name;
@@ -38,15 +40,15 @@
 		$record["skype"] = $skype;
 		$record["hotline"] = $hotline;
 		$record["tel"] = $tel;
-		$record["f1"] = $f1;
-		$record["f2"] = $f2;
-		$record["f3"] = $f3;
 		$record["rewrite_url"] = $rewrite_url;
-		
-		$sql="DELETE FROM sys_config WHERE lang='$lang'";
-		$db->Execute($sql);
-		
+		$record["card_payment_percent"] = $card_payment_percent;
+
+		// Chỉ xoá/ghi đúng các key thuộc form này (không DELETE toàn bộ sys_config theo lang), để không
+		// xoá nhầm các cấu hình khác không nằm trong form (vd tỉ lệ hoa hồng f1-f9, spillover_f1-f8...
+		// hiện chỉnh trực tiếp trong database, không qua form này).
 		foreach($record as $key=>$value) {
+			$sql = "DELETE FROM sys_config WHERE lang='$lang' AND name='$key'";
+			$db->Execute($sql);
 			$sql = "INSERT INTO sys_config(value,name,lang) VALUES ('$value','$key','$lang')";
 			$db->Execute($sql);
 		}

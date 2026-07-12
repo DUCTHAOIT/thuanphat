@@ -58,6 +58,15 @@ try {
     }
 
     $mysqli->commit();
+
+    sendTelegramNotify(
+        "💸 <b>Yêu cầu rút tiền mới #{$transaction_id}</b>\n" .
+        "Thành viên: " . htmlspecialchars($bank_account_holder) . " (ID {$user_id})\n" .
+        "Số tiền: " . number_format($amount, 0, ',', '.') . "đ\n" .
+        "Ngân hàng: " . htmlspecialchars($bank_name) . " - " . htmlspecialchars($bank_account_number),
+        TELEGRAM_CHAT_ID_WITHDRAW
+    );
+
     echo 'success';
     exit;
 } catch (Throwable $e) {

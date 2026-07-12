@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 3.1.36, created on 2026-07-08 11:40:14
+/* Smarty version 3.1.36, created on 2026-07-11 16:53:39
   from 'C:\xampp\htdocs\thuanphatitc.vn\theme\default\templates\basket_list.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '3.1.36',
-  'unifunc' => 'content_6a4e1afe360c73_49803579',
+  'unifunc' => 'content_6a5258f396fd67_67335963',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     '379a3dd19a43ba917968953219b6d2ad5da4f4ee' => 
     array (
       0 => 'C:\\xampp\\htdocs\\thuanphatitc.vn\\theme\\default\\templates\\basket_list.tpl',
-      1 => 1783309163,
+      1 => 1783781593,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_6a4e1afe360c73_49803579 (Smarty_Internal_Template $_smarty_tpl) {
+function content_6a5258f396fd67_67335963 (Smarty_Internal_Template $_smarty_tpl) {
 ?>
 
 	<link rel="stylesheet" type="text/css" href="../assets/css/user.css"/>
@@ -910,6 +910,37 @@ $_smarty_tpl->smarty->ext->_foreach->restore($_smarty_tpl, 1);?>
 
 				<?php } else { ?>
 
+			<div class="card" style="margin-bottom:15px; border:1px solid #e2e2e2; border-radius:6px; padding:12px;">
+				<strong>Chọn nguồn thanh toán</strong>
+				<div style="margin-top:8px;">
+					<?php if ($_smarty_tpl->tpl_vars['acceptCard']->value) {?>
+					<label style="display:block; margin-bottom:6px;">
+						<input type="checkbox" name="use_card" id="use_card" value="1" onchange="updatePaymentPreview()" <?php if ($_smarty_tpl->tpl_vars['cardBalance']->value <= 0) {?>disabled<?php }?> />
+						<strong style="color:#fbbf24;">Điểm thẻ tiêu dùng</strong> (số dư: <?php echo call_user_func_array( $_smarty_tpl->smarty->registered_plugins[Smarty::PLUGIN_FUNCTION]['format_number2'][0], array( array('number'=>$_smarty_tpl->tpl_vars['cardBalance']->value),$_smarty_tpl ) );?>
+, tối đa <?php echo $_smarty_tpl->tpl_vars['cardPaymentPercent']->value;?>
+% giá trị đơn)
+					</label>
+					<?php }?>
+					<?php if ($_smarty_tpl->tpl_vars['acceptTieuDung']->value) {?>
+					<label style="display:block; margin-bottom:6px;">
+						<input type="checkbox" name="use_tieu_dung" id="use_tieu_dung" value="1" onchange="updatePaymentPreview()" <?php if ($_smarty_tpl->tpl_vars['tieuDungBalance']->value <= 0) {?>disabled<?php }?> />
+						<strong style="color:#fbbf24;">Ví tiêu dùng</strong> (số dư: <?php echo call_user_func_array( $_smarty_tpl->smarty->registered_plugins[Smarty::PLUGIN_FUNCTION]['format_number2'][0], array( array('number'=>$_smarty_tpl->tpl_vars['tieuDungBalance']->value),$_smarty_tpl ) );?>
+)
+					</label>
+					<?php }?>
+					<?php if ($_smarty_tpl->tpl_vars['acceptKhaDung']->value) {?>
+					<label style="display:block; margin-bottom:6px;">
+						<input type="checkbox" name="use_kha_dung" id="use_kha_dung" value="1" onchange="updatePaymentPreview()" <?php if ($_smarty_tpl->tpl_vars['khaDungBalance']->value <= 0) {?>disabled<?php }?> />
+						<strong style="color:#fbbf24;">Ví khả dụng</strong> (số dư: <?php echo call_user_func_array( $_smarty_tpl->smarty->registered_plugins[Smarty::PLUGIN_FUNCTION]['format_number2'][0], array( array('number'=>$_smarty_tpl->tpl_vars['khaDungBalance']->value),$_smarty_tpl ) );?>
+)
+					</label>
+					<?php }?>
+					<?php if (!$_smarty_tpl->tpl_vars['acceptCard']->value && !$_smarty_tpl->tpl_vars['acceptTieuDung']->value && !$_smarty_tpl->tpl_vars['acceptKhaDung']->value) {?>
+					<div style="color:#fde68a;">Các sản phẩm trong giỏ chỉ chấp nhận thanh toán chuyển khoản.</div>
+					<?php }?>
+				</div>
+				<div id="paymentPreview" style="margin-top:10px; font-size:14px; background:#f8f9fa; color:#1f2937; padding:8px; border-radius:4px;"></div>
+			</div>
 				<div>
 
 					<div class="card-header bg-warning text-dark">
@@ -922,10 +953,10 @@ $_smarty_tpl->smarty->ext->_foreach->restore($_smarty_tpl, 1);?>
 
 						<p>Vui lòng quét mã VietQR để thanh toán:</p>
 
-						<img src="https://img.vietqr.io/image/VCB-0251001521762-compact2.png?amount=<?php echo $_smarty_tpl->tpl_vars['total']->value;?>
+			<img id="paymentQrImg" data-base-url="https://img.vietqr.io/image/TCB-1316833888-compact2.png?addInfo=THANH%20TOAN%20DON%20HANG%20<?php echo $_smarty_tpl->tpl_vars['Membermobile']->value;?>
+" src="https://img.vietqr.io/image/TCB-1316833888-compact2.png?amount=<?php echo $_smarty_tpl->tpl_vars['total']->value;?>
 &addInfo=THANH%20TOAN%20DON%20HANG%20<?php echo $_smarty_tpl->tpl_vars['Membermobile']->value;?>
 "
-
 							 alt="QR thanh toán" class="img-fluid" style="max-width:300px;">
 
 						
@@ -968,6 +999,68 @@ echo @constant('_DOMAIN_ROOT_URL');?>
 										<button type="button" onclick="removeImage()" class="btn btn-sm btn-danger">Xoá ảnh</button>
 
 									</div>
+
+
+<?php echo '<script'; ?>
+>
+	var tpudTotalAmount = <?php echo (($tmp = @$_smarty_tpl->tpl_vars['total']->value)===null||$tmp==='' ? 0 : $tmp);?>
+;
+	var tpudCardBalance = <?php echo (($tmp = @$_smarty_tpl->tpl_vars['cardBalance']->value)===null||$tmp==='' ? 0 : $tmp);?>
+;
+	var tpudTieuDungBalance = <?php echo (($tmp = @$_smarty_tpl->tpl_vars['tieuDungBalance']->value)===null||$tmp==='' ? 0 : $tmp);?>
+;
+	var tpudKhaDungBalance = <?php echo (($tmp = @$_smarty_tpl->tpl_vars['khaDungBalance']->value)===null||$tmp==='' ? 0 : $tmp);?>
+;
+	var tpudCardPaymentPercent = <?php echo (($tmp = @$_smarty_tpl->tpl_vars['cardPaymentPercent']->value)===null||$tmp==='' ? 100 : $tmp);?>
+;
+
+	function tpudFormatMoney(n) {
+		return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+	}
+
+	function updatePaymentPreview() {
+		var remaining = tpudTotalAmount;
+		var cardAmount = 0, tieuDungAmount = 0, khaDungAmount = 0;
+
+		if (document.getElementById("use_card") && document.getElementById("use_card").checked) {
+			var maxCardByPercent = tpudTotalAmount * (tpudCardPaymentPercent / 100);
+			cardAmount = Math.min(remaining, maxCardByPercent, tpudCardBalance);
+			remaining -= cardAmount;
+		}
+		if (document.getElementById("use_tieu_dung") && document.getElementById("use_tieu_dung").checked) {
+			tieuDungAmount = Math.min(remaining, tpudTieuDungBalance);
+			remaining -= tieuDungAmount;
+		}
+		if (document.getElementById("use_kha_dung") && document.getElementById("use_kha_dung").checked) {
+			khaDungAmount = Math.min(remaining, tpudKhaDungBalance);
+			remaining -= khaDungAmount;
+		}
+
+		var cashAmount = remaining;
+
+		var previewEl = document.getElementById("paymentPreview");
+		if (previewEl) {
+			previewEl.innerHTML =
+				"Điểm thẻ: " + tpudFormatMoney(cardAmount) + "<br>" +
+				"Ví tiêu dùng: " + tpudFormatMoney(tieuDungAmount) + "<br>" +
+				"Ví khả dụng: " + tpudFormatMoney(khaDungAmount) + "<br>" +
+				"<strong>Còn lại chuyển khoản: " + tpudFormatMoney(cashAmount) + "</strong>";
+		}
+
+		var qrImg = document.getElementById("paymentQrImg");
+		if (qrImg) {
+			var base = qrImg.getAttribute("data-base-url");
+			qrImg.src = base + "&amount=" + Math.round(cashAmount);
+		}
+	}
+
+	if (document.readyState === "loading") {
+		document.addEventListener("DOMContentLoaded", updatePaymentPreview);
+	} else {
+		updatePaymentPreview();
+	}
+<?php echo '</script'; ?>
+>
 
 									
 

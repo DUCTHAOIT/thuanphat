@@ -80,9 +80,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['ord
     $stmt->execute();
     $stmt->close();
 
+    require_once dirname(__FILE__) . '/../../include/order_commission.php';
     if ($action === 'approved') {
-        require_once dirname(__FILE__) . '/../../include/order_commission.php';
         processOrderApproval($mysqli, $order_id);
+    } else {
+        processOrderRejection($mysqli, $order_id);
     }
 
     header("Location: ?m=order&page=$page&search=" . urlencode($search));

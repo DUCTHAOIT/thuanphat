@@ -147,9 +147,17 @@ if (isset($_GET['export']) && $_GET['export'] == 1) {
              WHERE c.user_id = u.id AND c.level = 9) AS hoa_hong_f9,
             (SELECT IFNULL(SUM(c.amount), 0) FROM commissions c
              JOIN orders o2 ON c.order_id = o2.id AND o2.status = 'approved'
-             WHERE c.user_id = u.id) AS tong_hoa_hong
+             WHERE c.user_id = u.id) AS tong_hoa_hong,
+            IFNULL(uw.tong, 0) AS vi_tong,
+            IFNULL(uw.kha_dung, 0) AS vi_kha_dung,
+            IFNULL(uw.tieu_dung, 0) AS vi_tieu_dung,
+            IFNULL(uw.tai_tieu_dung, 0) AS vi_tai_tieu_dung,
+            IFNULL(uw.thue_phi, 0) AS vi_thue_phi,
+            IFNULL(cc.balance, 0) AS diem_the_tieu_dung
         FROM user u
         LEFT JOIN orders o ON u.id = o.user_id AND o.status = 'approved'
+        LEFT JOIN user_wallets uw ON uw.user_id = u.id
+        LEFT JOIN consumption_cards cc ON cc.user_id = u.id
         $search_sql
         GROUP BY u.id
         ORDER BY u.date_create DESC
@@ -167,7 +175,9 @@ if (isset($_GET['export']) && $_GET['export'] == 1) {
         'Số F1', 'Hoa hồng hưởng từ F1',
         'Số F2', 'Hoa hồng hưởng từ F2',
         'Số F3', 'Hoa hồng hưởng từ F3',
-        'Tổng Hoa Hồng'
+        'Tổng Hoa Hồng',
+        'Ví tổng', 'Ví khả dụng', 'Ví tiêu dùng', 'Ví tái tiêu dùng', 'Ví thuế phí',
+        'Điểm thẻ tiêu dùng'
     ];
 
     while ($row = $res->fetch_assoc()) {
@@ -186,6 +196,12 @@ if (isset($_GET['export']) && $_GET['export'] == 1) {
             (int)$row['so_luong_f3'],
             (float)$row['hoa_hong_f3'],
             (float)$row['tong_hoa_hong'],
+            (float)$row['vi_tong'],
+            (float)$row['vi_kha_dung'],
+            (float)$row['vi_tieu_dung'],
+            (float)$row['vi_tai_tieu_dung'],
+            (float)$row['vi_thue_phi'],
+            (float)$row['diem_the_tieu_dung'],
         ];
     }
 
@@ -226,9 +242,16 @@ $sql = "
          WHERE c.user_id = u.id AND c.level = 3) AS hoa_hong_f3,
         (SELECT IFNULL(SUM(c.amount), 0) FROM commissions c
          JOIN orders o2 ON c.order_id = o2.id AND o2.status = 'approved'
-         WHERE c.user_id = u.id) AS tong_hoa_hong
+         WHERE c.user_id = u.id) AS tong_hoa_hong,
+        IFNULL(uw.kha_dung, 0) AS vi_kha_dung,
+        IFNULL(uw.tieu_dung, 0) AS vi_tieu_dung,
+        IFNULL(uw.tai_tieu_dung, 0) AS vi_tai_tieu_dung,
+        IFNULL(uw.thue_phi, 0) AS vi_thue_phi,
+        IFNULL(cc.balance, 0) AS diem_the_tieu_dung
     FROM user u
     LEFT JOIN orders o ON u.id = o.user_id AND o.status = 'approved'
+    LEFT JOIN user_wallets uw ON uw.user_id = u.id
+    LEFT JOIN consumption_cards cc ON cc.user_id = u.id
     $search_sql
     GROUP BY u.id
     ORDER BY u.date_create DESC
@@ -255,6 +278,7 @@ $result = $stmt->get_result();
     <button type="submit" name="export" value="1">📥 Xuất Excel</button>
 </form>
 
+<div class="table-responsive" style="overflow-x:auto;">
 <table class="table table-bordered table-striped" border="1" cellpadding="5" cellspacing="0">
     <tr>
         <th>ID</th>
@@ -262,8 +286,13 @@ $result = $stmt->get_result();
         <th>Họ tên</th>
         <th>Email</th>
         <th>Người giới thiệu</th>
-
         <th>Doanh số</th>
+        <th>Ví khả dụng</th>
+        <th>Ví tiêu dùng</th>
+        <th>Ví tái tiêu dùng</th>
+        <th>Ví thuế phí</th>
+        <th>Điểm thẻ tiêu dùng</th>
+
         <th>F1 / HH</th>
         <th>F2 / HH</th>
         <th>F3 / HH</th>
@@ -282,8 +311,13 @@ $result = $stmt->get_result();
             <td><a href="?m=user&f=dashboard&user_id=<?= $row['id'] ?>&name=<?= htmlspecialchars($row['name']) ?>"><?= htmlspecialchars($row['name']) ?></a></td>
             <td><?= htmlspecialchars($row['email']) ?><br>Điện thoại: <?= htmlspecialchars($row['mobile']) ?><br>CCCD: <?= htmlspecialchars($row['cmt']) ?></td>
             <td><?= htmlspecialchars($row['gioithieu']) ?></td>
-
             <td><?= number_format($row['direct_sales'], 0, ',', '.') ?>đ</td>
+            <td><?= number_format($row['vi_kha_dung'], 0, ',', '.') ?>đ</td>
+            <td><?= number_format($row['vi_tieu_dung'], 0, ',', '.') ?>đ</td>
+            <td><?= number_format($row['vi_tai_tieu_dung'], 0, ',', '.') ?>đ</td>
+            <td><?= number_format($row['vi_thue_phi'], 0, ',', '.') ?>đ</td>
+            <td><strong><?= number_format($row['diem_the_tieu_dung'], 0, ',', '.') ?>đ</strong></td>
+
             <td><?= $row['so_luong_f1'] ?> / <?= number_format($row['hoa_hong_f1'], 0, ',', '.') ?>đ</td>
             <td><?= $row['so_luong_f2'] ?> / <?= number_format($row['hoa_hong_f2'], 0, ',', '.') ?>đ</td>
             <td><?= $row['so_luong_f3'] ?> / <?= number_format($row['hoa_hong_f3'], 0, ',', '.') ?>đ</td>
@@ -297,6 +331,7 @@ $result = $stmt->get_result();
         </tr>
     <?php endwhile; ?>
 </table>
+</div>
 <!-- Phân trang -->
 <div>Trang: 
     <?php

@@ -131,6 +131,21 @@
 		if($is_activation_combo) $is_activation_combo = 1;
 		else $is_activation_combo = 0;
 
+		$commission_amount=str_replace($vowels, "", getParamPost("commission_amount"));
+		if(!$commission_amount) $commission_amount=0;
+
+		$accept_card_payment=getParamPost("accept_card_payment");
+		if($accept_card_payment) $accept_card_payment = 1;
+		else $accept_card_payment = 0;
+
+		$accept_tieu_dung_payment=getParamPost("accept_tieu_dung_payment");
+		if($accept_tieu_dung_payment) $accept_tieu_dung_payment = 1;
+		else $accept_tieu_dung_payment = 0;
+
+		$accept_kha_dung_payment=getParamPost("accept_kha_dung_payment");
+		if($accept_kha_dung_payment) $accept_kha_dung_payment = 1;
+		else $accept_kha_dung_payment = 0;
+
 		$sort=getParamPost("sort");
         if(!$sort) $sort = 0;
 		
@@ -187,7 +202,7 @@
 					$sql = "SELECT * FROM sys_product WHERE 0 = -1";
 					$rs = $db->Execute($sql);
 					//$sql = $db->GetInsertSQL($rs, $record);			
-					$sql = "INSERT INTO sys_product (catID, name, alias, summary, content, model, product_in, promotion, position, solutions, tienich, vitri, price_old, price, img, img1, pdf, date_create, lang, special_promotion, is_activation_combo, sort, xuatsu, manufacturers, chinhsach, title, description, keywords) VALUES ( '$catID', '$name', '$alias', '$summary', '$content', '$model',  '$product_in', '$promotion', '$position', '$solutions', '$tienich', '$vitri', '$price_old', '$price_new', '$imgsmall', '$imgbig', '$filePDF', '$date', '$langID', '$special_promotion', '$is_activation_combo', '$sort','$str_xuatsu','$str_manufacturers','$chinhsach', '$title','$description','$keywords')";
+					$sql = "INSERT INTO sys_product (catID, name, alias, summary, content, model, product_in, promotion, position, solutions, tienich, vitri, price_old, price, img, img1, pdf, date_create, lang, special_promotion, is_activation_combo, commission_amount, accept_card_payment, accept_tieu_dung_payment, accept_kha_dung_payment, sort, xuatsu, manufacturers, chinhsach, title, description, keywords) VALUES ( '$catID', '$name', '$alias', '$summary', '$content', '$model',  '$product_in', '$promotion', '$position', '$solutions', '$tienich', '$vitri', '$price_old', '$price_new', '$imgsmall', '$imgbig', '$filePDF', '$date', '$langID', '$special_promotion', '$is_activation_combo', '$commission_amount', '$accept_card_payment', '$accept_tieu_dung_payment', '$accept_kha_dung_payment', '$sort','$str_xuatsu','$str_manufacturers','$chinhsach', '$title','$description','$keywords')";
 					$return=$db->Execute($sql);	
 					if($return){
 						$idNew=$db->Insert_ID();
@@ -200,7 +215,7 @@
 					$sql = "SELECT * FROM sys_product WHERE 0 = -1";
 					$rs = $db->Execute($sql);
 					//$sql = $db->GetInsertSQL($rs, $record);			
-					$sql = "INSERT INTO sys_product (catID, name, alias, summary, content, model, product_in, promotion, position, solutions, tienich, vitri, price_old, price, img, img1, pdf, date_create, lang, special_promotion, is_activation_combo, sort, xuatsu, manufacturers, chinhsach, title, description, keywords) VALUES ( '$catID', '$name', '$alias', '$summary', '$content', '$model',  '$product_in', '$promotion', '$position', '$solutions', '$tienich', '$vitri', '$price_old', '$price_new', '$imgsmall', '$imgbig', '$filePDF', '$date', '$langID', '$special_promotion', '$is_activation_combo', '$sort','$str_xuatsu','$str_manufacturers','$chinhsach', '$title','$description','$keywords')";
+					$sql = "INSERT INTO sys_product (catID, name, alias, summary, content, model, product_in, promotion, position, solutions, tienich, vitri, price_old, price, img, img1, pdf, date_create, lang, special_promotion, is_activation_combo, commission_amount, accept_card_payment, accept_tieu_dung_payment, accept_kha_dung_payment, sort, xuatsu, manufacturers, chinhsach, title, description, keywords) VALUES ( '$catID', '$name', '$alias', '$summary', '$content', '$model',  '$product_in', '$promotion', '$position', '$solutions', '$tienich', '$vitri', '$price_old', '$price_new', '$imgsmall', '$imgbig', '$filePDF', '$date', '$langID', '$special_promotion', '$is_activation_combo', '$commission_amount', '$accept_card_payment', '$accept_tieu_dung_payment', '$accept_kha_dung_payment', '$sort','$str_xuatsu','$str_manufacturers','$chinhsach', '$title','$description','$keywords')";
 					$return=$db->Execute($sql);		
 					$idNew=$db->Insert_ID();
 					
@@ -223,7 +238,7 @@
 					
 					$sql = "SELECT * FROM sys_product WHERE id=$id";
 					$rs = $db->Execute($sql);
-					$sql= "UPDATE sys_product SET catID = '$catID', name = '$name', alias = '".$alias."', summary = '$summary', content = '$content', model = '$model', product_in='$product_in', promotion='$promotion', position='$position', solutions='$solutions', tienich='$tienich', vitri='$vitri', price_old = '$price_old', price = '$price_new', img = '$imgsmall', img1 = '$imgbig', pdf = '$filePDF', date_create = '$date', lang = '$langID', special_promotion = '$special_promotion', is_activation_combo = '$is_activation_combo', sort = '$sort', xuatsu='$str_xuatsu', manufacturers='$str_manufacturers', chinhsach='$chinhsach',title='$title',description='$description',keywords='$keywords' WHERE id=$id";
+					$sql= "UPDATE sys_product SET catID = '$catID', name = '$name', alias = '".$alias."', summary = '$summary', content = '$content', model = '$model', product_in='$product_in', promotion='$promotion', position='$position', solutions='$solutions', tienich='$tienich', vitri='$vitri', price_old = '$price_old', price = '$price_new', img = '$imgsmall', img1 = '$imgbig', pdf = '$filePDF', date_create = '$date', lang = '$langID', special_promotion = '$special_promotion', is_activation_combo = '$is_activation_combo', commission_amount = '$commission_amount', accept_card_payment = '$accept_card_payment', accept_tieu_dung_payment = '$accept_tieu_dung_payment', accept_kha_dung_payment = '$accept_kha_dung_payment', sort = '$sort', xuatsu='$str_xuatsu', manufacturers='$str_manufacturers', chinhsach='$chinhsach',title='$title',description='$description',keywords='$keywords' WHERE id=$id";
 					$return=$db->Execute($sql);
 					if($return){
 						$sql="DELETE FROM sys_product_admin_cat WHERE artID='$id'";
@@ -237,7 +252,7 @@
 			}else{
 					$sql = "SELECT * FROM sys_product WHERE id=$id";
 					$rs = $db->Execute($sql);
-                    $sql= "UPDATE sys_product SET catID = '$catID', name = '$name', alias = '".$alias."', summary = '$summary', content = '$content', model = '$model', product_in='$product_in', promotion='$promotion', position='$position', solutions='$solutions', tienich='$tienich', vitri='$vitri', price_old = '$price_old', price = '$price_new', img = '$imgsmall', img1 = '$imgbig', pdf = '$filePDF', date_create = '$date', lang = '$langID', special_promotion = '$special_promotion', is_activation_combo = '$is_activation_combo', sort = '$sort', xuatsu='$str_xuatsu', manufacturers='$str_manufacturers', chinhsach='$chinhsach',title='$title',description='$description',keywords='$keywords' WHERE id=$id";
+                    $sql= "UPDATE sys_product SET catID = '$catID', name = '$name', alias = '".$alias."', summary = '$summary', content = '$content', model = '$model', product_in='$product_in', promotion='$promotion', position='$position', solutions='$solutions', tienich='$tienich', vitri='$vitri', price_old = '$price_old', price = '$price_new', img = '$imgsmall', img1 = '$imgbig', pdf = '$filePDF', date_create = '$date', lang = '$langID', special_promotion = '$special_promotion', is_activation_combo = '$is_activation_combo', commission_amount = '$commission_amount', accept_card_payment = '$accept_card_payment', accept_tieu_dung_payment = '$accept_tieu_dung_payment', accept_kha_dung_payment = '$accept_kha_dung_payment', sort = '$sort', xuatsu='$str_xuatsu', manufacturers='$str_manufacturers', chinhsach='$chinhsach',title='$title',description='$description',keywords='$keywords' WHERE id=$id";
 					$return=$db->Execute($sql);
 					if($return){
 						$sql="DELETE FROM sys_product_admin_cat WHERE artID='$id'";

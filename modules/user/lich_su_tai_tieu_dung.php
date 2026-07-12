@@ -10,10 +10,8 @@ include_once("header.php");
 
 $user_id = getMemberNameID($username, "id");
 
-$wallet_label = ['tong' => 'Ví tổng', 'kha_dung' => 'Ví khả dụng', 'tieu_dung' => 'Ví tiêu dùng', 'tai_tieu_dung' => 'Ví tái tiêu dùng', 'thue_phi' => 'Ví thuế, phí'];
-
 // Nội dung chi tiết: ref_type='commission' gộp chung 3 loại hoa hồng/thưởng (direct/spillover/rank_bonus)
-// nên phải join sang commissions.type mới tách được. Các ref_type khác giữ nhãn cũ.
+// nên phải join sang commissions.type mới tách được. Các ref_type khác giữ nhãn cũ. (đồng bộ với lich_su_vi.php)
 $content_label_map = [
     'direct' => 'Hoa hồng trực tiếp',
     'spillover' => 'Hoa hồng điều tầng',
@@ -33,14 +31,6 @@ function wallet_txn_content_label($ref_type, $commission_type, $content_label_ma
     return $content_label_map[$ref_type] ?? $ref_type;
 }
 
-// Ví tổng chỉ để theo dõi (mục 2 BUSINESS_RULES.md), không cho lọc riêng.
-// Loại giao dịch: bỏ Hoàn tiền, Điều chỉnh khỏi bộ lọc theo yêu cầu.
-$wallet_filter_options = $wallet_label;
-unset($wallet_filter_options['tong']);
-
-$content_filter_options = $content_label_map;
-unset($content_filter_options['refund'], $content_filter_options['admin_adjust']);
-
 // Truyền mảng params động vào bind_param (tương thích PHP 5/7, không dùng splat operator)
 function bindParamsArray($stmt, $types, array $params)
 {
@@ -52,42 +42,44 @@ function bindParamsArray($stmt, $types, array $params)
     call_user_func_array([$stmt, 'bind_param'], $refs);
 }
 
+// ----- Ví tái tiêu dùng: số dư hiện tại + số lần tái tiêu dùng (mục 2 BUSINESS_RULES.md) -----
+$tai_tieu_dung_balance = 0;
+$rebuy_count = 0;
+$stmt = $mysqli->prepare("SELECT tai_tieu_dung, rebuy_count FROM user_wallets WHERE user_id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$res = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+if ($res) {
+    $tai_tieu_dung_balance = $res['tai_tieu_dung'];
+    $rebuy_count = (int) $res['rebuy_count'];
+}
+
+// ----- Tổng đã nhận: cộng dồn toàn bộ các khoản credit vào ví tái tiêu dùng từ trước đến nay -----
+// (khác với số dư hiện tại vì ví này bị reset về 0 sau mỗi lần tái tiêu dùng)
+$tai_tieu_dung_tong_da_nhan = 0;
+$stmt = $mysqli->prepare("SELECT SUM(amount) AS total FROM wallet_transactions WHERE user_id = ? AND wallet_type = 'tai_tieu_dung' AND direction = 'credit'");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$res = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+if ($res) $tai_tieu_dung_tong_da_nhan = (float) ($res['total'] ?? 0);
+
 // ----- Bộ lọc -----
-$filter_wallet_type = trim($_GET['wallet_type'] ?? '');
-$filter_content = trim($_GET['content'] ?? '');
 $filter_direction = trim($_GET['direction'] ?? '');
 $filter_from = trim($_GET['from'] ?? '');
 $filter_to = trim($_GET['to'] ?? '');
 
-if (!array_key_exists($filter_wallet_type, $wallet_filter_options)) $filter_wallet_type = '';
-if (!array_key_exists($filter_content, $content_filter_options)) $filter_content = '';
 if (!in_array($filter_direction, ['credit', 'debit'], true)) $filter_direction = '';
 
-// Ví tổng chỉ để theo dõi (mục 2 BUSINESS_RULES.md) - không thống kê/tìm kiếm ở trang này, dù không chọn lọc gì.
-$where = ["wt.user_id = ?", "wt.wallet_type != 'tong'"];
+$where = ["wt.user_id = ?", "wt.wallet_type = 'tai_tieu_dung'"];
 $params = [$user_id];
 $types = "i";
 
-if ($filter_wallet_type !== '') {
-    $where[] = "wt.wallet_type = ?";
-    $params[] = $filter_wallet_type;
-    $types .= "s";
-}
 if ($filter_direction !== '') {
     $where[] = "wt.direction = ?";
     $params[] = $filter_direction;
     $types .= "s";
-}
-if ($filter_content !== '') {
-    if (in_array($filter_content, ['direct', 'spillover', 'rank_bonus'], true)) {
-        $where[] = "wt.ref_type = 'commission' AND c.type = ?";
-        $params[] = $filter_content;
-        $types .= "s";
-    } else {
-        $where[] = "wt.ref_type = ?";
-        $params[] = $filter_content;
-        $types .= "s";
-    }
 }
 if ($filter_from !== '') {
     $where[] = "wt.created_at >= ?";
@@ -101,13 +93,7 @@ if ($filter_to !== '') {
 }
 
 $whereSql = implode(" AND ", $where);
-// Join thêm orders + user để lấy tầng (F mấy) và thành viên nào mua hàng sinh ra khoản hoa hồng
-// (commissions.level chỉ có ở direct/spillover; commissions.order_id -> orders.user_id là người mua).
-$joinSql = "
-    LEFT JOIN commissions c ON wt.ref_type = 'commission' AND wt.ref_id = c.id
-    LEFT JOIN orders o ON c.order_id = o.id
-    LEFT JOIN user u ON o.user_id = u.id
-";
+$joinSql = "LEFT JOIN commissions c ON wt.ref_type = 'commission' AND wt.ref_id = c.id";
 
 $limit = 20;
 $page = max(1, (int) ($_GET['page'] ?? 1));
@@ -126,8 +112,7 @@ $listParams[] = $offset;
 $listTypes = $types . "ii";
 
 $stmt = $mysqli->prepare("
-    SELECT wt.wallet_type, wt.direction, wt.amount, wt.ref_type, wt.created_at, c.type AS commission_type,
-           c.level AS commission_level, u.name AS source_name
+    SELECT wt.direction, wt.amount, wt.balance_after, wt.ref_type, wt.created_at, c.type AS commission_type
     FROM wallet_transactions wt
     $joinSql
     WHERE $whereSql
@@ -137,15 +122,15 @@ $stmt = $mysqli->prepare("
 bindParamsArray($stmt, $listTypes, $listParams);
 $stmt->execute();
 $res = $stmt->get_result();
-$wallet_txns = [];
-while ($row = $res->fetch_assoc()) $wallet_txns[] = $row;
+$tai_tieu_dung_txns = [];
+while ($row = $res->fetch_assoc()) $tai_tieu_dung_txns[] = $row;
 $stmt->close();
 
 // Giữ nguyên các filter đang chọn khi bấm số trang
 $pagination_query = $_GET;
 unset($pagination_query['page']);
 
-$active_nav = 'lich_su_vi';
+$active_nav = 'lich_su_tai_tieu_dung';
 ?>
 <link rel="stylesheet" href="<?php echo _DOMAIN_ROOT_URL; ?>/modules/user/dashboard.css?v=<?php echo @filemtime(dirname(__FILE__) . '/dashboard.css'); ?>">
 
@@ -154,33 +139,31 @@ $active_nav = 'lich_su_vi';
 
     <div class="tpud-top">
         <div>
-            <h2>Lịch sử giao dịch ví</h2>
-            <div class="tpud-sub">Toàn bộ biến động cộng/trừ các ví của bạn</div>
+            <h2>Lịch sử tái tiêu dùng</h2>
+            <div class="tpud-sub">Tự động tái tiêu dùng khi đạt 5.000.000đ, tối đa 258.000.000đ</div>
+        </div>
+    </div>
+
+    <!-- 3 thống kê -->
+    <div class="tpud-grid tpud-grid-3">
+        <div class="tpud-card">
+            <div class="tpud-card-label">Số lần tái tiêu dùng</div>
+            <div class="tpud-card-value" style="margin-bottom:0"><?= number_format($rebuy_count) ?> lần</div>
+        </div>
+        <div class="tpud-card">
+            <div class="tpud-card-label">Số dư hiện tại</div>
+            <div class="tpud-card-value" style="margin-bottom:0"><?= number_format($tai_tieu_dung_balance, 0) ?> <small>VND</small></div>
+        </div>
+        <div class="tpud-card">
+            <div class="tpud-card-label">Tổng đã nhận</div>
+            <div class="tpud-card-value" style="margin-bottom:0"><?= number_format($tai_tieu_dung_tong_da_nhan, 0) ?> <small>VND</small></div>
         </div>
     </div>
 
     <div class="tpud-card" style="margin-bottom:20px;">
         <form method="get" style="display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end;">
             <input type="hidden" name="m" value="user">
-            <input type="hidden" name="f" value="lich_su_vi">
-            <div>
-                <label style="font-size:13px; color:#6b7280; display:block; margin-bottom:4px;">Ví</label>
-                <select name="wallet_type" class="form-control" style="min-width:150px;">
-                    <option value="">Tất cả</option>
-                    <?php foreach ($wallet_filter_options as $key => $label): ?>
-                        <option value="<?= $key ?>" <?= $filter_wallet_type === $key ? 'selected' : '' ?>><?= $label ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div>
-                <label style="font-size:13px; color:#6b7280; display:block; margin-bottom:4px;">Loại giao dịch</label>
-                <select name="content" class="form-control" style="min-width:170px;">
-                    <option value="">Tất cả</option>
-                    <?php foreach ($content_filter_options as $key => $label): ?>
-                        <option value="<?= $key ?>" <?= $filter_content === $key ? 'selected' : '' ?>><?= $label ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
+            <input type="hidden" name="f" value="lich_su_tai_tieu_dung">
             <div>
                 <label style="font-size:13px; color:#6b7280; display:block; margin-bottom:4px;">Tăng/Giảm</label>
                 <select name="direction" class="form-control" style="min-width:110px;">
@@ -199,13 +182,13 @@ $active_nav = 'lich_su_vi';
             </div>
             <div style="display:flex; gap:8px;">
                 <button type="submit" class="btn btn-primary">Lọc</button>
-                <a href="<?php echo _DOMAIN_ROOT_URL; ?>/?m=user&f=lich_su_vi" class="btn btn-secondary">Xóa lọc</a>
+                <a href="<?php echo _DOMAIN_ROOT_URL; ?>/?m=user&f=lich_su_tai_tieu_dung" class="btn btn-secondary">Xóa lọc</a>
             </div>
         </form>
     </div>
 
     <div class="tpud-card">
-        <?php if (empty($wallet_txns)): ?>
+        <?php if (empty($tai_tieu_dung_txns)): ?>
             <div class="tpud-empty">Không tìm thấy giao dịch nào</div>
         <?php else: ?>
             <div style="overflow-x:auto;">
@@ -214,15 +197,13 @@ $active_nav = 'lich_su_vi';
                         <tr>
                             <th>Ngày giờ</th>
                             <th>Loại</th>
-                            <th>Ví</th>
                             <th>Số tiền</th>
+                            <th>Số dư sau GD</th>
                             <th>Nội dung</th>
-                            <th>Tầng</th>
-                            <th>Từ thành viên</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($wallet_txns as $t): ?>
+                        <?php foreach ($tai_tieu_dung_txns as $t): ?>
                             <tr>
                                 <td><?= date('d/m/Y H:i', strtotime($t['created_at'])) ?></td>
                                 <td>
@@ -232,11 +213,9 @@ $active_nav = 'lich_su_vi';
                                         <span class="tpud-badge tpud-badge-danger">Giảm</span>
                                     <?php endif; ?>
                                 </td>
-                                <td><?= $wallet_label[$t['wallet_type']] ?? $t['wallet_type'] ?></td>
                                 <td><?= number_format($t['amount'], 0) ?></td>
+                                <td><?= number_format($t['balance_after'], 0) ?></td>
                                 <td><?= wallet_txn_content_label($t['ref_type'], $t['commission_type'], $content_label_map) ?></td>
-                                <td><?= $t['commission_level'] !== null ? 'F' . (int) $t['commission_level'] : '-' ?></td>
-                                <td><?= $t['source_name'] !== null ? htmlspecialchars($t['source_name']) : '-' ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

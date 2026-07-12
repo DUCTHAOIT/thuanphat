@@ -49,8 +49,8 @@ function count_total_downline($mysqli, $user_id)
     return $total;
 }
 
-// ----- Số lượng F1 + tổng tuyến dưới (F2-F9) - dùng cho 3 thẻ thống kê nhanh -----
-// Chi tiết từng tầng F1-F9 xem trang riêng "Sơ đồ trực tiếp" (?m=user&f=so_do_truc_tiep).
+// ----- Số lượng F1 + tổng tuyến dưới (không giới hạn tầng) - dùng cho 3 thẻ thống kê nhanh -----
+// Chi tiết từng tầng F1-F8 (hoa hồng trực tiếp) xem trang riêng "Sơ đồ trực tiếp" (?m=user&f=so_do_truc_tiep).
 $stmt = $mysqli->prepare("SELECT COUNT(*) c FROM user WHERE ref_by = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -74,46 +74,53 @@ $stmt->close();
 $total_hoa_hong = (float) ($row['hoa_hong'] ?? 0);
 $total_doanh_so = (float) ($row['doanh_so'] ?? 0);
 
-// ----- Thống kê thu nhập: hoa hồng đã nhận (released, đã cộng ví) vs đang chờ kích hoạt (pending) -----
-function sum_commission_by_status($mysqli, $user_id, $status)
+// ----- Thống kê thu nhập: đã nhận (released, đã cộng ví) vs chưa nhận (pending, chờ business_active) -----
+// Hoa hồng trực tiếp (mục 4 BUSINESS_RULES.md) luôn released ngay, không bao giờ pending.
+// Hoa hồng điều tầng + thưởng danh hiệu (bảng commissions) và thưởng điểm thẻ tiêu dùng (bảng
+// card_point_bonuses) thì pending/released theo business_active (mục 5).
+function sum_commission_by_status($mysqli, $user_id, $type, $status)
 {
-    $stmt = $mysqli->prepare("SELECT SUM(amount) AS total FROM commissions WHERE user_id = ? AND type = 'direct' AND status = ?");
+    $stmt = $mysqli->prepare("SELECT SUM(amount) AS total FROM commissions WHERE user_id = ? AND type = ? AND status = ?");
+    $stmt->bind_param("iss", $user_id, $type, $status);
+    $stmt->execute();
+    $r = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    return (float) ($r['total'] ?? 0);
+}
+function sum_card_point_bonus_by_status($mysqli, $user_id, $status)
+{
+    $stmt = $mysqli->prepare("SELECT SUM(amount) AS total FROM card_point_bonuses WHERE user_id = ? AND status = ?");
     $stmt->bind_param("is", $user_id, $status);
     $stmt->execute();
     $r = $stmt->get_result()->fetch_assoc();
     $stmt->close();
     return (float) ($r['total'] ?? 0);
 }
-$hoa_hong_da_nhan = sum_commission_by_status($mysqli, $user_id, 'released');
-$hoa_hong_dang_cho = sum_commission_by_status($mysqli, $user_id, 'pending');
 
-// ----- Giao dịch ví gần đây (xem đầy đủ tại trang "Lịch sử giao dịch") -----
-$wallet_txns = [];
-$stmt = $mysqli->prepare("SELECT wallet_type, direction, amount, ref_type, created_at FROM wallet_transactions WHERE user_id = ? ORDER BY id DESC LIMIT 8");
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$res = $stmt->get_result();
-while ($row = $res->fetch_assoc()) $wallet_txns[] = $row;
-$stmt->close();
+$hoa_hong_truc_tiep_da_nhan = sum_commission_by_status($mysqli, $user_id, 'direct', 'released');
+$hoa_hong_truc_tiep_chua_nhan = sum_commission_by_status($mysqli, $user_id, 'direct', 'pending'); // luôn = 0 theo mục 4
 
-$wallet_label = ['tong' => 'Ví tổng', 'kha_dung' => 'Ví khả dụng', 'tieu_dung' => 'Ví tiêu dùng', 'tai_tieu_dung' => 'Ví tái tiêu dùng', 'thue_phi' => 'Ví thuế, phí'];
-$ref_type_label = ['order' => 'Thanh toán đơn hàng', 'commission' => 'Hoa hồng', 'withdraw' => 'Rút tiền', 'rebuy' => 'Tái tiêu dùng', 'refund' => 'Hoàn tiền', 'rank_bonus' => 'Thưởng danh hiệu', 'card_bonus' => 'Thẻ tiêu dùng tuần hoàn', 'admin_adjust' => 'Điều chỉnh'];
+$hoa_hong_dieu_tang_da_nhan = sum_commission_by_status($mysqli, $user_id, 'spillover', 'released');
+$hoa_hong_dieu_tang_chua_nhan = sum_commission_by_status($mysqli, $user_id, 'spillover', 'pending');
 
-// ----- Lịch sử rút tiền gần đây -----
-$withdraw_history = [];
-$stmt = $mysqli->prepare("SELECT amount, status, created_at FROM transactions WHERE user_id = ? AND type = 'withdraw' ORDER BY id DESC LIMIT 5");
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$res = $stmt->get_result();
-while ($row = $res->fetch_assoc()) $withdraw_history[] = $row;
-$stmt->close();
+$thuong_danh_hieu_da_nhan = sum_commission_by_status($mysqli, $user_id, 'rank_bonus', 'released');
+$thuong_danh_hieu_chua_nhan = sum_commission_by_status($mysqli, $user_id, 'rank_bonus', 'pending');
 
-$withdraw_status_label = ['pending' => 'Đang xử lý', 'approved' => 'Thành công', 'rejected' => 'Từ chối'];
-$withdraw_status_class = ['pending' => 'tpud-badge-warning', 'approved' => 'tpud-badge-success', 'rejected' => 'tpud-badge-danger'];
+$thuong_diem_the_da_nhan = sum_card_point_bonus_by_status($mysqli, $user_id, 'released');
+$thuong_diem_the_chua_nhan = sum_card_point_bonus_by_status($mysqli, $user_id, 'pending');
+
+$thu_nhap_rows = [
+    ['label' => 'Hoa hồng trực tiếp (F1-F8)', 'da_nhan' => $hoa_hong_truc_tiep_da_nhan, 'chua_nhan' => $hoa_hong_truc_tiep_chua_nhan],
+    ['label' => 'Hoa hồng điều tầng (cây điều tầng)', 'da_nhan' => $hoa_hong_dieu_tang_da_nhan, 'chua_nhan' => $hoa_hong_dieu_tang_chua_nhan],
+    ['label' => 'Thưởng danh hiệu', 'da_nhan' => $thuong_danh_hieu_da_nhan, 'chua_nhan' => $thuong_danh_hieu_chua_nhan],
+    ['label' => 'Thưởng điểm thẻ tiêu dùng', 'da_nhan' => $thuong_diem_the_da_nhan, 'chua_nhan' => $thuong_diem_the_chua_nhan],
+];
+$tong_da_nhan = array_sum(array_column($thu_nhap_rows, 'da_nhan'));
+$tong_chua_nhan = array_sum(array_column($thu_nhap_rows, 'chua_nhan'));
 
 $active_nav = 'dashboard';
 ?>
-<link rel="stylesheet" href="<?php echo _DOMAIN_ROOT_URL; ?>/modules/user/dashboard.css">
+<link rel="stylesheet" href="<?php echo _DOMAIN_ROOT_URL; ?>/modules/user/dashboard.css?v=<?php echo @filemtime(dirname(__FILE__) . '/dashboard.css'); ?>">
 
 <div class="tpud">
     <?php include dirname(__FILE__) . "/_nav.php"; ?>
@@ -135,34 +142,6 @@ $active_nav = 'dashboard';
                     </p>
                 <?php endif; ?>
             </div>
-        </div>
-    </div>
-
-    <!-- 4 ví -->
-    <div class="tpud-grid tpud-grid-4">
-        <div class="tpud-card">
-            <div class="tpud-card-label">Ví khả dụng</div>
-            <div class="tpud-card-value"><?= number_format($wallet['kha_dung'], 0) ?> <small>VND</small></div>
-            <?php if ($wallet['kha_dung'] > 0): ?>
-                <button type="button" class="tpud-btn tpud-btn-green" data-toggle="modal" data-target="#withdrawModal">Rút tiền</button>
-            <?php else: ?>
-                <span class="tpud-btn tpud-btn-muted">Số dư không đủ</span>
-            <?php endif; ?>
-        </div>
-        <div class="tpud-card">
-            <div class="tpud-card-label">Ví tiêu dùng</div>
-            <div class="tpud-card-value"><?= number_format($wallet['tieu_dung'], 0) ?> <small>VND</small></div>
-            <a class="tpud-btn tpud-btn-blue" href="<?php echo _DOMAIN_ROOT_URL; ?>/vn/san-pham/">Mua hàng</a>
-        </div>
-        <div class="tpud-card">
-            <div class="tpud-card-label">Ví tái tiêu dùng</div>
-            <div class="tpud-card-value"><?= number_format($wallet['tai_tieu_dung'], 0) ?> <small>VND</small></div>
-            <span class="tpud-btn tpud-btn-muted" title="Tự động tái tiêu dùng khi đạt 5.000.000đ, tối đa 258.000.000đ">Tái tiêu dùng</span>
-        </div>
-        <div class="tpud-card">
-            <div class="tpud-card-label">Ví thuế, phí</div>
-            <div class="tpud-card-value"><?= number_format($wallet['thue_phi'], 0) ?> <small>VND</small></div>
-            <span class="tpud-btn tpud-btn-muted" title="Các khoản thuế, phí">Thuế, Phí</span>
         </div>
     </div>
 
@@ -213,6 +192,34 @@ $active_nav = 'dashboard';
             document.body.removeChild(textarea);
         });
     </script>
+    <!-- 4 ví -->
+    <div class="tpud-grid tpud-grid-4">
+        <div class="tpud-card">
+            <div class="tpud-card-label">Ví khả dụng</div>
+            <div class="tpud-card-value"><?= number_format($wallet['kha_dung'], 0) ?> <small>VND</small></div>
+            <?php if ($wallet['kha_dung'] > 0): ?>
+                <button type="button" class="tpud-btn tpud-btn-green" data-toggle="modal" data-target="#withdrawModal">Rút tiền</button>
+            <?php else: ?>
+                <span class="tpud-btn tpud-btn-muted">Số dư không đủ</span>
+            <?php endif; ?>
+        </div>
+        <div class="tpud-card">
+            <div class="tpud-card-label">Ví tiêu dùng</div>
+            <div class="tpud-card-value"><?= number_format($wallet['tieu_dung'], 0) ?> <small>VND</small></div>
+            <a class="tpud-btn tpud-btn-blue" href="<?php echo _DOMAIN_ROOT_URL; ?>/vn/san-pham/">Mua hàng</a>
+        </div>
+        <div class="tpud-card">
+            <div class="tpud-card-label">Ví tái tiêu dùng</div>
+            <div class="tpud-card-value"><?= number_format($wallet['tai_tieu_dung'], 0) ?> <small>VND</small></div>
+            <a class="tpud-btn tpud-btn-blue" href="<?php echo _DOMAIN_ROOT_URL; ?>/?m=user&f=lich_su_tai_tieu_dung" title="Tự động tái tiêu dùng khi đạt 5.000.000đ, tối đa 258.000.000đ">Chi tiết</a>
+        </div>
+        <div class="tpud-card">
+            <div class="tpud-card-label">Ví thuế, phí</div>
+            <div class="tpud-card-value"><?= number_format($wallet['thue_phi'], 0) ?> <small>VND</small></div>
+            <span class="tpud-btn tpud-btn-muted" title="Các khoản thuế, phí">Thuế, Phí</span>
+        </div>
+    </div>
+
 
     <!-- 3 thống kê -->
     <div class="tpud-grid tpud-grid-3">
@@ -225,7 +232,7 @@ $active_nav = 'dashboard';
             <div class="tpud-card-value" style="margin-bottom:0"><?= number_format($total_f1) ?> thành viên</div>
         </div>
         <div class="tpud-card">
-            <div class="tpud-card-label">Thành viên F2 - F9</div>
+            <div class="tpud-card-label">Thành viên F2 - F8</div>
             <div class="tpud-card-value" style="margin-bottom:0"><?= number_format($total_f2_f9) ?> thành viên</div>
         </div>
     </div>
@@ -234,84 +241,45 @@ $active_nav = 'dashboard';
     <div class="tpud-card" style="margin-bottom:20px;">
         <div class="tpud-section-head">
             <h4 style="font-size:15px;">Thống kê thu nhập</h4>
-            <a href="<?php echo _DOMAIN_ROOT_URL; ?>/?m=user&f=so_do_truc_tiep">Xem chi tiết theo cấp F1-F9 &rarr;</a>
+            <a href="<?php echo _DOMAIN_ROOT_URL; ?>/?m=user&f=so_do_truc_tiep">Xem chi tiết theo cấp F1-F8 &rarr;</a>
         </div>
-        <div class="tpud-hh-row"><span>Tổng thu nhập (ví tổng)</span><strong><?= number_format($wallet['tong'], 0) ?> VND</strong></div>
-        <div class="tpud-hh-row"><span>Hoa hồng đã nhận (đã cộng ví)</span><strong><?= number_format($hoa_hong_da_nhan, 0) ?> VND</strong></div>
-        <div class="tpud-hh-row"><span>Hoa hồng đang chờ kích hoạt</span><strong><?= number_format($hoa_hong_dang_cho, 0) ?> VND</strong></div>
-        <div class="tpud-hh-total"><span>Hoa hồng tổng (doanh số <?= number_format($total_doanh_so, 0) ?> VND)</span><span><?= number_format($total_hoa_hong, 0) ?> VND</span></div>
-        <?php if ($hoa_hong_dang_cho > 0 && !$business_active): ?>
-            <div style="margin-top:8px; font-size:12px; color:#b45309;">* Hoa hồng đang chờ vì bạn chưa kích hoạt gói 5.000.000đ. Kích hoạt để nhận toàn bộ vào ví.</div>
+        <div class="tpud-hh-row"><span>Tổng thu nhập: </span><strong><?= number_format($wallet['tong'], 0) ?> VND</strong></div>
+        <div style="overflow-x:auto; margin-top:10px;">
+            <table class="tpud-table">
+                <thead>
+                    <tr>
+                        <th>Khoản thu nhập</th>
+                        <th>Đã nhận</th>
+                        <th>Chưa nhận</th>
+                        <th>Tổng cộng</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($thu_nhap_rows as $r): ?>
+                        <tr>
+                            <td><?= $r['label'] ?></td>
+                            <td><?= number_format($r['da_nhan'], 0) ?></td>
+                            <td><?= number_format($r['chua_nhan'], 0) ?></td>
+                            <td><?= number_format($r['da_nhan'] + $r['chua_nhan'], 0) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td>Tổng cộng</td>
+                        <td><?= number_format($tong_da_nhan, 0) ?></td>
+                        <td><?= number_format($tong_chua_nhan, 0) ?></td>
+                        <td><?= number_format($tong_da_nhan + $tong_chua_nhan, 0) ?></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <div style="margin-top:8px; font-size:13px; color:#6b7280;">* Hoa hồng trực tiếp doanh số <?= number_format($total_doanh_so, 0) ?> VND. </div>
+        <?php if ($tong_chua_nhan > 0 && !$business_active): ?>
+            <div style="margin-top:4px; font-size:13px; color:#b45309;">* Có khoản đang chờ vì bạn chưa kích hoạt gói 5.000.000đ. Kích hoạt để nhận toàn bộ vào ví/điểm thẻ.</div>
         <?php endif; ?>
     </div>
 
-    <!-- Giao dịch gần đây + Lịch sử rút tiền -->
-    <div class="tpud-grid tpud-grid-2">
-        <div class="tpud-card">
-            <div class="tpud-section-head">
-                <h4 style="font-size:15px;">Giao dịch gần đây</h4>
-                <a href="<?php echo _DOMAIN_ROOT_URL; ?>/?m=user&f=lich_su_vi">Xem tất cả &rarr;</a>
-            </div>
-            <?php if (empty($wallet_txns)): ?>
-                <div class="tpud-empty">Chưa có giao dịch nào</div>
-            <?php else: ?>
-                <div style="overflow-x:auto;">
-                    <table class="tpud-table">
-                        <thead>
-                            <tr>
-                                <th>Ngày giờ</th>
-                                <th>Loại</th>
-                                <th>Ví</th>
-                                <th>Số tiền</th>
-                                <th>Nội dung</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($wallet_txns as $t): ?>
-                                <tr>
-                                    <td><?= date('d/m/Y H:i', strtotime($t['created_at'])) ?></td>
-                                    <td><?= $t['direction'] === 'credit' ? '+' : '-' ?></td>
-                                    <td><?= $wallet_label[$t['wallet_type']] ?? $t['wallet_type'] ?></td>
-                                    <td><?= number_format($t['amount'], 0) ?></td>
-                                    <td><?= $ref_type_label[$t['ref_type']] ?? $t['ref_type'] ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php endif; ?>
-        </div>
-        <div class="tpud-card">
-            <h4 style="margin-bottom:10px; font-size:15px;">Lịch sử rút tiền</h4>
-            <?php if (empty($withdraw_history)): ?>
-                <div class="tpud-empty">Chưa có yêu cầu rút tiền nào</div>
-            <?php else: ?>
-                <div style="overflow-x:auto;">
-                    <table class="tpud-table">
-                        <thead>
-                            <tr>
-                                <th>Ngày</th>
-                                <th>Số tiền</th>
-                                <th>Trạng thái</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($withdraw_history as $w): ?>
-                                <tr>
-                                    <td><?= date('d/m/Y', strtotime($w['created_at'])) ?></td>
-                                    <td><?= number_format($w['amount'], 0) ?></td>
-                                    <td><span class="tpud-badge <?= $withdraw_status_class[$w['status']] ?? 'tpud-badge-muted' ?>"><?= $withdraw_status_label[$w['status']] ?? $w['status'] ?></span></td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php endif; ?>
-            <div style="text-align:right; margin-top:8px;">
-                <a href="#" data-toggle="modal" data-target="#withdrawListModal" style="font-size:13px; color:#2563eb;">Xem tất cả &rarr;</a>
-            </div>
-        </div>
-    </div>
 </div>
 
 <!-- Modal Rút tiền -->
@@ -377,6 +345,9 @@ $active_nav = 'dashboard';
                         <b>Ngày tạo:</b> ${data.created_at}<br>
                         <b>Trạng thái:</b> ${data.status}<br>
                         <strong>Vui lòng chờ xử lý trước khi tạo yêu cầu mới.</strong>
+                        <div style="margin-top:10px;">
+                            <a href="/?m=user&f=lich_su_rut_tien" class="btn btn-sm btn-secondary">Xem / hủy yêu cầu tại Lịch sử rút tiền</a>
+                        </div>
                     `;
                             alertBox.removeClass('d-none alert-success alert-danger')
                                 .addClass('alert-warning')
@@ -424,8 +395,8 @@ $active_nav = 'dashboard';
                         const footer = form.querySelector('.modal-footer');
                         if (footer) footer.style.display = 'none';
                         setTimeout(() => {
-                            $('#withdrawModal').modal('hide');
-                        }, 3000);
+                            location.reload();
+                        }, 1500);
                     } else {
                         alertBox.className = 'alert alert-danger';
                         alertBox.innerText = data;
@@ -438,68 +409,6 @@ $active_nav = 'dashboard';
                     alertBox.classList.remove('d-none');
                 });
         });
-    });
-</script>
-
-<!-- Modal danh sách rút tiền -->
-<div class="modal fade" id="withdrawListModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Danh sách giao dịch rút tiền</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="position:absolute; top:10px; right:10px">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <table class="table table-bordered table-hover">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Ngày tạo</th>
-                            <th>Số tiền</th>
-                            <th>Ngân hàng</th>
-                            <th>STK</th>
-                            <th>Chủ TK</th>
-                            <th>Trạng thái</th>
-                            <th>Ngày duyệt</th>
-                        </tr>
-                    </thead>
-                    <tbody id="withdraw-table-body">
-                    </tbody>
-                </table>
-                <div id="withdraw-pagination"></div>
-            </div>
-        </div>
-    </div>
-</div>
-<script>
-    function loadWithdrawList(page = 1) {
-        $.ajax({
-            url: '/?m=user&f=get_withdraw_list',
-            method: 'GET',
-            data: {
-                page: page
-            },
-            dataType: 'json',
-            success: function(res) {
-                $('#withdraw-table-body').html(res.html);
-                $('#withdraw-pagination').html(res.pagination);
-            },
-            error: function() {
-                $('#withdraw-table-body').html('<tr><td colspan="8">Lỗi tải dữ liệu</td></tr>');
-            }
-        });
-    }
-
-    $('#withdrawListModal').on('shown.bs.modal', function() {
-        loadWithdrawList(1);
-    });
-
-    $(document).on('click', '#withdraw-pagination .page-link', function(e) {
-        e.preventDefault();
-        const page = $(this).data('page');
-        loadWithdrawList(page);
     });
 </script>
 

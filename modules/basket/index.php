@@ -99,7 +99,7 @@
 
 		include_once("header.php");
 
-		global $smarty,$lang,$lable;
+		global $smarty,$lang,$lable,$mysqli;
 		$arrProductBasket=getProductBasket();
         $username=getSession("username");
         if($username){
@@ -110,6 +110,41 @@
             $smarty->assign('cmt',$cmt);
             $smarty->assign('img',$img);
             $smarty->assign('img1',$img1);
+
+            // Số dư điểm thẻ/ví + % giới hạn thanh toán bằng thẻ, hiển thị cho khách chọn nguồn thanh
+            // toán (mục 3 BUSINESS_RULES.md, cập nhật 2026-07-11)
+            $memberId=(int)getMemberNameID($username,"id");
+
+            $stmt=$mysqli->prepare("SELECT balance FROM consumption_cards WHERE user_id = ?");
+            $stmt->bind_param("i",$memberId);
+            $stmt->execute();
+            $cardBalance=(float)($stmt->get_result()->fetch_assoc()['balance'] ?? 0);
+            $stmt->close();
+
+            $stmt=$mysqli->prepare("SELECT tieu_dung, kha_dung FROM user_wallets WHERE user_id = ?");
+            $stmt->bind_param("i",$memberId);
+            $stmt->execute();
+            $walletRow=$stmt->get_result()->fetch_assoc();
+            $tieuDungBalance=(float)($walletRow['tieu_dung'] ?? 0);
+            $khaDungBalance=(float)($walletRow['kha_dung'] ?? 0);
+            $stmt->close();
+
+            $stmt=$mysqli->prepare("SELECT value FROM sys_config WHERE name = 'card_payment_percent' AND lang = 'vn'");
+            $stmt->execute();
+            $cardPaymentPercent=(float)($stmt->get_result()->fetch_assoc()['value'] ?? 100);
+            $stmt->close();
+
+            // Giao (intersection) nguồn thanh toán được TẤT CẢ sản phẩm trong giỏ hàng chấp nhận (mục 3
+            // BUSINESS_RULES.md, cập nhật 2026-07-11) - chỉ hiện checkbox cho nguồn nào cả giỏ đều chấp nhận
+            $acceptedSources=getAcceptedPaymentSources();
+
+            $smarty->assign('cardBalance',$cardBalance);
+            $smarty->assign('tieuDungBalance',$tieuDungBalance);
+            $smarty->assign('khaDungBalance',$khaDungBalance);
+            $smarty->assign('cardPaymentPercent',$cardPaymentPercent);
+            $smarty->assign('acceptCard',$acceptedSources['accept_card']);
+            $smarty->assign('acceptTieuDung',$acceptedSources['accept_tieu_dung']);
+            $smarty->assign('acceptKhaDung',$acceptedSources['accept_kha_dung']);
         }
 		if($arrProductBasket){
 			$smarty->assign('arrProductBasket',$arrProductBasket);
