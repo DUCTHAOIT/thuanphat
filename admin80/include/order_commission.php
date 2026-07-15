@@ -124,7 +124,7 @@ function processOrderRejection($mysqli, $order_id) {
 // Bỏ qua nếu đơn không có order_payments (đơn không dùng điểm thẻ/ví nào, hoặc đơn tạo trước khi luồng này
 // được triển khai).
 function refundOrderPaymentIfAny($mysqli, $order_id, $userId) {
-    $stmt = $mysqli->prepare("SELECT id, card_amount, tieu_dung_amount, kha_dung_amount FROM order_payments WHERE order_id = ? AND refunded_at IS NULL FOR UPDATE");
+    $stmt = $mysqli->prepare("SELECT id, card_amount, tich_luy_amount, tieu_dung_amount, kha_dung_amount FROM order_payments WHERE order_id = ? AND refunded_at IS NULL FOR UPDATE");
     $stmt->bind_param("i", $order_id);
     $stmt->execute();
     $payment = $stmt->get_result()->fetch_assoc();
@@ -133,10 +133,12 @@ function refundOrderPaymentIfAny($mysqli, $order_id, $userId) {
     if (!$payment) return;
 
     $cardAmount = (float) $payment['card_amount'];
+    $tichLuyAmount = (float) $payment['tich_luy_amount'];
     $tieuDungAmount = (float) $payment['tieu_dung_amount'];
     $khaDungAmount = (float) $payment['kha_dung_amount'];
 
     if ($cardAmount > 0) creditConsumptionCard($mysqli, $userId, $cardAmount);
+    if ($tichLuyAmount > 0) creditWallet($mysqli, $userId, 'tich_luy_tieu_dung', $tichLuyAmount, 'refund', $order_id);
     if ($tieuDungAmount > 0) creditWallet($mysqli, $userId, 'tieu_dung', $tieuDungAmount, 'refund', $order_id);
     if ($khaDungAmount > 0) creditWallet($mysqli, $userId, 'kha_dung', $khaDungAmount, 'refund', $order_id);
 
@@ -198,7 +200,7 @@ function activateCommissionIfEligible($mysqli, $userId, $order_id) {
     $upd->close();
 
     releasePendingCommissions($mysqli, $userId);
-    releasePendingCardPointBonuses($mysqli, $userId);
+    releasePendingAccumulatedConsumptionBonuses($mysqli, $userId);
     releasePendingRecurringConsumptionBonuses($mysqli, $userId);
 }
 
@@ -269,23 +271,23 @@ function releasePendingCommissions($mysqli, $userId) {
     }
 }
 
-// Khi commission_active chuyển sang 1 (mục 5, cập nhật 2026-07-11): release toàn bộ thưởng điểm thẻ tiêu
-// dùng đang pending của người đó, cộng thẳng vào consumption_cards.balance (khác hoa hồng/thưởng khác cộng
-// vào user_wallets).
-function releasePendingCardPointBonuses($mysqli, $userId) {
-    $stmt = $mysqli->prepare("SELECT id, amount FROM card_point_bonuses WHERE user_id = ? AND status = 'pending' FOR UPDATE");
+// Khi commission_active chuyển sang 1 (mục 5, cập nhật 2026-07-13): release toàn bộ Tích lũy tiêu dùng đang
+// pending của người đó, cộng thẳng vào user_wallets.tich_luy_tieu_dung (ví riêng, khác điểm thẻ tiêu dùng -
+// consumption_cards.balance - giữ nguyên không đổi).
+function releasePendingAccumulatedConsumptionBonuses($mysqli, $userId) {
+    $stmt = $mysqli->prepare("SELECT id, amount FROM accumulated_consumption_bonuses WHERE user_id = ? AND status = 'pending' FOR UPDATE");
     $stmt->bind_param("i", $userId);
     $stmt->execute();
     $pendingList = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
 
     foreach ($pendingList as $pending) {
-        $upd = $mysqli->prepare("UPDATE card_point_bonuses SET status = 'released', released_at = NOW() WHERE id = ?");
+        $upd = $mysqli->prepare("UPDATE accumulated_consumption_bonuses SET status = 'released', released_at = NOW() WHERE id = ?");
         $upd->bind_param("i", $pending['id']);
         $upd->execute();
         $upd->close();
 
-        creditConsumptionCard($mysqli, $userId, (float)$pending['amount']);
+        creditWallet($mysqli, $userId, 'tich_luy_tieu_dung', (float)$pending['amount'], 'accumulated_consumption', (int)$pending['id']);
     }
 }
 
@@ -318,6 +320,8 @@ function releasePendingRecurringConsumptionBonuses($mysqli, $userId) {
 // ảnh hưởng tới đơn hàng hiện tại). Sản phẩm chưa được admin nhập commission_amount coi như đóng góp 0đ.
 // "Quỹ công ty" (mục 3) = giá trị đơn hàng - tổng hoa hồng sản phẩm, không bị ảnh hưởng bởi điểm thẻ đã
 // dùng - không cần tính/lưu ở đây vì không dùng cho nghiệp vụ nào khác.
+// (cập nhật 2026-07-13: Tích lũy tiêu dùng - order_payments.tich_luy_amount - cũng trừ khỏi quỹ chia hoa
+// hồng giống điểm thẻ tiêu dùng, xem mục 6 BUSINESS_RULES.md.)
 function calculateCommissionFund($mysqli, $order_id) {
     $stmt = $mysqli->prepare("
         SELECT COALESCE(SUM(oi.quantity * p.commission_amount), 0) AS total
@@ -330,13 +334,15 @@ function calculateCommissionFund($mysqli, $order_id) {
     $productCommissionSum = (float) ($stmt->get_result()->fetch_assoc()['total'] ?? 0);
     $stmt->close();
 
-    $stmt = $mysqli->prepare("SELECT card_amount FROM order_payments WHERE order_id = ?");
+    $stmt = $mysqli->prepare("SELECT card_amount, tich_luy_amount FROM order_payments WHERE order_id = ?");
     $stmt->bind_param("i", $order_id);
     $stmt->execute();
-    $cardAmount = (float) ($stmt->get_result()->fetch_assoc()['card_amount'] ?? 0);
+    $payment = $stmt->get_result()->fetch_assoc();
+    $cardAmount = (float) ($payment['card_amount'] ?? 0);
+    $tichLuyAmount = (float) ($payment['tich_luy_amount'] ?? 0);
     $stmt->close();
 
-    return max(0, $productCommissionSum - $cardAmount);
+    return max(0, $productCommissionSum - $cardAmount - $tichLuyAmount);
 }
 
 // Chia hoa hồng sơ đồ trực tiếp 8 tầng (f1..f8 theo sys_config) trên quỹ chia hoa hồng (mục 3, cập nhật
@@ -392,11 +398,11 @@ function creditDirectCommission($mysqli, $order_id, $userId, $level, $amount) {
 }
 
 // Quỹ vận hành (mục 3 BUSINESS_RULES.md): $amount đổ vào tự động chia đều 20% cho mỗi quỹ trong 5 quỹ con.
-// $source: 'direct_commission' (10% quỹ chia hoa hồng mỗi đơn) | 'card_bonus' (30% còn lại của thưởng
-// tiêu dùng tuần hoàn, mục 6) | 'rebuy' (phần còn lại của quỹ hoa hồng Rebuy sau khi chia 3 khoản, mục 6 -
-// Giao dịch tái tiêu dùng tự động). $rebuy_id: truyền khi $source = 'rebuy', $order_id để null trong trường
-// hợp đó (giao dịch Rebuy không có đơn hàng gốc). Chỉ ghi log vào admin_fund_transactions - quỹ này chỉ
-// hiển thị trên admin, không có thao tác cộng/trừ ví nào khác đi kèm.
+// $source: 'direct_commission' (10% quỹ chia hoa hồng mỗi đơn) | 'rebuy' (phần còn lại của quỹ hoa hồng
+// Rebuy sau khi chia 3 khoản, mục 6 - Giao dịch tái tiêu dùng tự động). $rebuy_id: truyền khi $source =
+// 'rebuy', $order_id để null trong trường hợp đó (giao dịch Rebuy không có đơn hàng gốc). Chỉ ghi log vào
+// admin_fund_transactions - quỹ này chỉ hiển thị trên admin, không có thao tác cộng/trừ ví nào khác đi kèm.
+// (cập nhật 2026-07-15: 'card_bonus' không còn đổ vào đây - xem creditCompanyCardFund()).
 function creditOperatingFund($mysqli, $order_id, $source, $amount, $rebuy_id = null) {
     if ($amount <= 0) return;
 
@@ -407,6 +413,27 @@ function creditOperatingFund($mysqli, $order_id, $source, $amount, $rebuy_id = n
     foreach ($fundCodes as $fundCode) {
         $stmt = $mysqli->prepare("INSERT INTO admin_fund_transactions (fund_code, source, order_id, rebuy_id, amount) VALUES (?, ?, ?, ?, ?)");
         $stmt->bind_param("ssiid", $fundCode, $source, $order_id, $rebuy_id, $perFundAmount);
+        $stmt->execute();
+        $stmt->close();
+    }
+}
+
+// Quỹ tiêu dùng tuần hoàn công ty (bổ sung 2026-07-15, mục 6 BUSINESS_RULES.md): nhận 30% còn lại của
+// thưởng tiêu dùng tuần hoàn (trước đó chung với quỹ vận hành, source='card_bonus'), chia đều 3 phần bằng
+// nhau (mỗi phần = 10% quỹ chia hoa hồng gốc, cộng lại đúng bằng 30% $amount truyền vào):
+// cp_nen_tang (chi phí nền tảng - nhân sự, IT) | bdh_leader (Ban điều hành & Leader) | du_phong_the (quỹ dự
+// phòng riêng của khoản này, KHÔNG gộp chung số dư với du_phong của quỹ vận hành). Chỉ ghi log vào
+// admin_fund_transactions, không có thao tác cộng/trừ ví nào khác đi kèm (giống creditOperatingFund()).
+function creditCompanyCardFund($mysqli, $order_id, $amount) {
+    if ($amount <= 0) return;
+
+    $fundCodes = ['cp_nen_tang', 'bdh_leader', 'du_phong_the'];
+    $perFundAmount = round($amount / 3, 2);
+    if ($perFundAmount <= 0) return;
+
+    foreach ($fundCodes as $fundCode) {
+        $stmt = $mysqli->prepare("INSERT INTO admin_fund_transactions (fund_code, source, order_id, amount) VALUES (?, 'card_bonus', ?, ?)");
+        $stmt->bind_param("sid", $fundCode, $order_id, $perFundAmount);
         $stmt->execute();
         $stmt->close();
     }
@@ -434,11 +461,12 @@ function ensureWalletRow($mysqli, $userId) {
     $stmt->close();
 }
 
-// Cộng vào 1 trong các ví: tong | kha_dung | tieu_dung | thue_phi (tai_tieu_dung xử lý riêng do có trần 258tr)
+// Cộng vào 1 trong các ví: tong | kha_dung | tieu_dung | thue_phi | tich_luy_tieu_dung (tai_tieu_dung xử lý
+// riêng do có trần 258tr)
 function creditWallet($mysqli, $userId, $walletType, $amount, $refType, $refId) {
     if ($amount <= 0) return;
 
-    $allowedColumns = ['tong', 'kha_dung', 'tieu_dung', 'thue_phi'];
+    $allowedColumns = ['tong', 'kha_dung', 'tieu_dung', 'thue_phi', 'tich_luy_tieu_dung'];
     if (!in_array($walletType, $allowedColumns, true)) return;
 
     ensureWalletRow($mysqli, $userId);
@@ -493,14 +521,14 @@ function debitWallet($mysqli, $userId, $walletType, $amount, $refType, $refId) {
     return true;
 }
 
-// Trừ 1 trong các ví (kha_dung | tieu_dung) để thanh toán đơn hàng (mục 3 BUSINESS_RULES.md, cập nhật
-// 2026-07-11): trừ tối đa $maxAmount nhưng không vượt quá số dư hiện có - không báo lỗi nếu thiếu, chỉ trừ
-// được bao nhiêu hay bấy nhiêu (phần còn thiếu do nguồn tiếp theo trong thứ tự ưu tiên đảm nhận). Trả về
-// số tiền thực trừ được, khác debitWallet() (đòi hỏi đủ số dư mới trừ, dùng cho rút tiền).
+// Trừ 1 trong các ví (kha_dung | tieu_dung | tich_luy_tieu_dung) để thanh toán đơn hàng (mục 3
+// BUSINESS_RULES.md, cập nhật 2026-07-13): trừ tối đa $maxAmount nhưng không vượt quá số dư hiện có - không
+// báo lỗi nếu thiếu, chỉ trừ được bao nhiêu hay bấy nhiêu (phần còn thiếu do nguồn tiếp theo trong thứ tự ưu
+// tiên đảm nhận). Trả về số tiền thực trừ được, khác debitWallet() (đòi hỏi đủ số dư mới trừ, dùng cho rút tiền).
 function debitWalletUpTo($mysqli, $userId, $walletType, $maxAmount, $refType, $refId) {
     if ($maxAmount <= 0) return 0;
 
-    $allowedColumns = ['kha_dung', 'tieu_dung'];
+    $allowedColumns = ['kha_dung', 'tieu_dung', 'tich_luy_tieu_dung'];
     if (!in_array($walletType, $allowedColumns, true)) return 0;
 
     ensureWalletRow($mysqli, $userId);
@@ -724,7 +752,7 @@ function placeSpilloverMember($mysqli, $sponsorUserId, $waitingUserId, $targetPa
         if ($activationOrder) {
             $fund = calculateCommissionFund($mysqli, (int) $activationOrder['id']);
             generateSpilloverCommission($mysqli, (int) $activationOrder['id'], $waitingUserId, $fund);
-            generateCardPointBonus($mysqli, (int) $activationOrder['id'], $waitingUserId, $fund);
+            generateAccumulatedConsumptionBonus($mysqli, (int) $activationOrder['id'], $waitingUserId, $fund);
             generateRecurringConsumptionBonus($mysqli, (int) $activationOrder['id'], $waitingUserId, $fund);
             checkAndAwardRankBonuses($mysqli, (int) $activationOrder['id'], $waitingUserId, $fund);
 
@@ -771,7 +799,7 @@ function generateBackfillSpilloverCommissionIfEligible($mysqli, $order_id, $buye
     $fund = calculateCommissionFund($mysqli, $order_id);
 
     generateSpilloverCommission($mysqli, $order_id, $buyerId, $fund);
-    generateCardPointBonus($mysqli, $order_id, $buyerId, $fund);
+    generateAccumulatedConsumptionBonus($mysqli, $order_id, $buyerId, $fund);
     generateRecurringConsumptionBonus($mysqli, $order_id, $buyerId, $fund);
     checkAndAwardRankBonuses($mysqli, $order_id, $buyerId, $fund);
 
@@ -839,34 +867,36 @@ function creditSpilloverCommission($mysqli, $order_id, $userId, $level, $amount)
     }
 }
 
-// ----- Thưởng điểm thẻ tiêu dùng (mục 6 BUSINESS_RULES.md) -----
-// Trích 10% quỹ chia hoa hồng của đơn kích hoạt, chia đều cho 8 tầng, đi lên theo spillover_tree.parent_id
-// (giống hoa hồng lấp tầng). Tầng nào không có thành viên thì bỏ qua khoản đó (không dồn cho tầng khác).
-function generateCardPointBonus($mysqli, $order_id, $placedUserId, $fundAmount) {
-    $perLevelAmount = round($fundAmount * 0.10 / 8, 2);
-    if ($perLevelAmount <= 0) return;
+// ----- Tích lũy tiêu dùng (mục 6 BUSINESS_RULES.md, cập nhật 2026-07-13 - đổi tên từ "thưởng điểm thẻ tiêu
+// dùng", đổi cách chia và nơi lưu, giữ nguyên tỉ lệ 10% + thời điểm phát sinh) -----
+// Trích 10% quỹ chia hoa hồng của đơn kích hoạt, chia ĐỀU cho TOÀN BỘ thành viên business_active = 1 trong
+// hệ thống, TRỪ chính người vừa được xếp vào cây (nguồn phát sinh quỹ này). Khác cơ chế cũ (đi lên 8 tầng
+// spillover_tree, cộng vào consumption_cards.balance) - nay không phụ thuộc vị trí trong cây, cộng vào ví
+// riêng user_wallets.tich_luy_tieu_dung. Không có ai đủ điều kiện (chỉ 1 mình người vừa kích hoạt là
+// business_active) thì bỏ qua, không dồn cho lần phát sinh khác.
+function generateAccumulatedConsumptionBonus($mysqli, $order_id, $placedUserId, $fundAmount) {
+    $totalAmount = $fundAmount * 0.10;
+    if ($totalAmount <= 0) return;
 
-    $currentUserId = $placedUserId;
-    for ($level = 1; $level <= 8; $level++) {
-        $stmt = $mysqli->prepare("SELECT parent_id FROM spillover_tree WHERE user_id = ?");
-        $stmt->bind_param("i", $currentUserId);
-        $stmt->execute();
-        $node = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
+    $stmt = $mysqli->prepare("SELECT id FROM user WHERE business_active = 1 AND id != ?");
+    $stmt->bind_param("i", $placedUserId);
+    $stmt->execute();
+    $recipientIds = array_map(function ($row) { return (int) $row['id']; }, $stmt->get_result()->fetch_all(MYSQLI_ASSOC));
+    $stmt->close();
 
-        if (!$node || !$node['parent_id']) break;
+    if (empty($recipientIds)) return;
 
-        $parentId = (int) $node['parent_id'];
-        creditCardPointBonus($mysqli, $order_id, $parentId, $level, $perLevelAmount);
+    $perMemberAmount = round($totalAmount / count($recipientIds), 2);
+    if ($perMemberAmount <= 0) return;
 
-        $currentUserId = $parentId;
+    foreach ($recipientIds as $recipientId) {
+        creditAccumulatedConsumptionBonus($mysqli, $order_id, $recipientId, $perMemberAmount);
     }
 }
 
-// Sinh 1 dòng thưởng điểm thẻ tiêu dùng cho 1 người ở 1 tầng. Nếu người nhận commission_active = 0 thì lưu
-// pending, chưa cộng điểm thẻ; = 1 thì released, cộng thẳng vào consumption_cards.balance ngay (mục 5, cập
-// nhật 2026-07-11: đổi điều kiện từ business_active sang commission_active).
-function creditCardPointBonus($mysqli, $order_id, $userId, $level, $amount) {
+// Sinh 1 dòng Tích lũy tiêu dùng cho 1 người nhận. Nếu người nhận commission_active = 0 thì lưu pending,
+// chưa cộng ví; = 1 thì released, cộng thẳng vào user_wallets.tich_luy_tieu_dung ngay (mục 5).
+function creditAccumulatedConsumptionBonus($mysqli, $order_id, $userId, $amount) {
     $stmt = $mysqli->prepare("SELECT commission_active FROM user WHERE id = ?");
     $stmt->bind_param("i", $userId);
     $stmt->execute();
@@ -876,13 +906,14 @@ function creditCardPointBonus($mysqli, $order_id, $userId, $level, $amount) {
     $status = $isActive ? 'released' : 'pending';
     $releasedAt = $isActive ? date('Y-m-d H:i:s') : null;
 
-    $stmt = $mysqli->prepare("INSERT INTO card_point_bonuses (order_id, user_id, level, amount, status, released_at) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("iiidss", $order_id, $userId, $level, $amount, $status, $releasedAt);
+    $stmt = $mysqli->prepare("INSERT INTO accumulated_consumption_bonuses (order_id, user_id, amount, status, released_at) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("iidss", $order_id, $userId, $amount, $status, $releasedAt);
     $stmt->execute();
+    $bonusId = $mysqli->insert_id;
     $stmt->close();
 
     if ($isActive) {
-        creditConsumptionCard($mysqli, $userId, $amount);
+        creditWallet($mysqli, $userId, 'tich_luy_tieu_dung', $amount, 'accumulated_consumption', $bonusId);
     }
 }
 
@@ -890,11 +921,12 @@ function creditCardPointBonus($mysqli, $order_id, $userId, $level, $amount) {
 // Trích 16% quỹ chia hoa hồng của đơn kích hoạt. 70% chia đều 8 tầng đi lên theo spillover_tree.parent_id
 // (giống hoa hồng lấp tầng/thưởng điểm thẻ) - chỉ ancestor ĐÃ đạt ít nhất 1 danh hiệu (có dòng trong
 // user_ranks) mới nhận, tầng nào ancestor chưa có danh hiệu thì bỏ qua (giống "tầng không có thành viên
-// thì không chia"). 30% còn lại chuyển vào quỹ vận hành (mục 3).
+// thì không chia"). 30% còn lại chuyển vào Quỹ tiêu dùng tuần hoàn công ty (cập nhật 2026-07-15, xem
+// creditCompanyCardFund()) - trước đó chung với quỹ vận hành mục 3.
 function generateRecurringConsumptionBonus($mysqli, $order_id, $placedUserId, $fundAmount) {
     $recurringAmount = $fundAmount * 0.16;
 
-    creditOperatingFund($mysqli, $order_id, 'card_bonus', $recurringAmount * 0.30);
+    creditCompanyCardFund($mysqli, $order_id, $recurringAmount * 0.30);
 
     $perLevelAmount = round($recurringAmount * 0.70 / 8, 2);
     if ($perLevelAmount <= 0) return;

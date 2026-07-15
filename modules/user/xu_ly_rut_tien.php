@@ -22,6 +22,12 @@ if ($amount <= 0) {
     exit;
 }
 
+// Rút tối thiểu 100.000đ/lần (mục 7 BUSINESS_RULES.md, bổ sung 2026-07-15)
+if ($amount < 100000) {
+    echo "Số tiền rút tối thiểu là 100.000đ.";
+    exit;
+}
+
 require_once dirname(__FILE__) . '/../../admin80/include/order_commission.php';
 
 // Tạo yêu cầu rút + trừ ngay ví khả dụng (kha_dung) trong 1 transaction (mục 7, mục 8.2 BUSINESS_RULES.md)

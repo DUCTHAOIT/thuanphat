@@ -16,8 +16,8 @@ $Membernganhangtknh = getMemberNameID($username, "nganhangtknh");
 $business_active = (int) getMemberNameID($username, "business_active");
 
 // ----- Ví (user_wallets) -----
-$wallet = ['tong' => 0, 'kha_dung' => 0, 'tieu_dung' => 0, 'tai_tieu_dung' => 0, 'thue_phi' => 0];
-$stmt = $mysqli->prepare("SELECT tong, kha_dung, tieu_dung, tai_tieu_dung, thue_phi FROM user_wallets WHERE user_id = ?");
+$wallet = ['tong' => 0, 'kha_dung' => 0, 'tieu_dung' => 0, 'tai_tieu_dung' => 0, 'thue_phi' => 0, 'tich_luy_tieu_dung' => 0];
+$stmt = $mysqli->prepare("SELECT tong, kha_dung, tieu_dung, tai_tieu_dung, thue_phi, tich_luy_tieu_dung FROM user_wallets WHERE user_id = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $res = $stmt->get_result()->fetch_assoc();
@@ -76,8 +76,9 @@ $total_doanh_so = (float) ($row['doanh_so'] ?? 0);
 
 // ----- Thống kê thu nhập: đã nhận (released, đã cộng ví) vs chưa nhận (pending, chờ business_active) -----
 // Hoa hồng trực tiếp (mục 4 BUSINESS_RULES.md) luôn released ngay, không bao giờ pending.
-// Hoa hồng điều tầng + thưởng danh hiệu (bảng commissions) và thưởng điểm thẻ tiêu dùng (bảng
-// card_point_bonuses) thì pending/released theo business_active (mục 5).
+// Hoa hồng điều tầng + thưởng danh hiệu (bảng commissions) và Tích lũy tiêu dùng (bảng
+// accumulated_consumption_bonuses, cập nhật 2026-07-13 - đổi tên từ "thưởng điểm thẻ tiêu dùng") thì
+// pending/released theo commission_active (mục 5).
 function sum_commission_by_status($mysqli, $user_id, $type, $status)
 {
     $stmt = $mysqli->prepare("SELECT SUM(amount) AS total FROM commissions WHERE user_id = ? AND type = ? AND status = ?");
@@ -87,9 +88,9 @@ function sum_commission_by_status($mysqli, $user_id, $type, $status)
     $stmt->close();
     return (float) ($r['total'] ?? 0);
 }
-function sum_card_point_bonus_by_status($mysqli, $user_id, $status)
+function sum_accumulated_consumption_bonus_by_status($mysqli, $user_id, $status)
 {
-    $stmt = $mysqli->prepare("SELECT SUM(amount) AS total FROM card_point_bonuses WHERE user_id = ? AND status = ?");
+    $stmt = $mysqli->prepare("SELECT SUM(amount) AS total FROM accumulated_consumption_bonuses WHERE user_id = ? AND status = ?");
     $stmt->bind_param("is", $user_id, $status);
     $stmt->execute();
     $r = $stmt->get_result()->fetch_assoc();
@@ -106,14 +107,14 @@ $hoa_hong_dieu_tang_chua_nhan = sum_commission_by_status($mysqli, $user_id, 'spi
 $thuong_danh_hieu_da_nhan = sum_commission_by_status($mysqli, $user_id, 'rank_bonus', 'released');
 $thuong_danh_hieu_chua_nhan = sum_commission_by_status($mysqli, $user_id, 'rank_bonus', 'pending');
 
-$thuong_diem_the_da_nhan = sum_card_point_bonus_by_status($mysqli, $user_id, 'released');
-$thuong_diem_the_chua_nhan = sum_card_point_bonus_by_status($mysqli, $user_id, 'pending');
+$tich_luy_tieu_dung_da_nhan = sum_accumulated_consumption_bonus_by_status($mysqli, $user_id, 'released');
+$tich_luy_tieu_dung_chua_nhan = sum_accumulated_consumption_bonus_by_status($mysqli, $user_id, 'pending');
 
 $thu_nhap_rows = [
     ['label' => 'Hoa hồng trực tiếp (F1-F8)', 'da_nhan' => $hoa_hong_truc_tiep_da_nhan, 'chua_nhan' => $hoa_hong_truc_tiep_chua_nhan],
     ['label' => 'Hoa hồng điều tầng (cây điều tầng)', 'da_nhan' => $hoa_hong_dieu_tang_da_nhan, 'chua_nhan' => $hoa_hong_dieu_tang_chua_nhan],
     ['label' => 'Thưởng danh hiệu', 'da_nhan' => $thuong_danh_hieu_da_nhan, 'chua_nhan' => $thuong_danh_hieu_chua_nhan],
-    ['label' => 'Thưởng điểm thẻ tiêu dùng', 'da_nhan' => $thuong_diem_the_da_nhan, 'chua_nhan' => $thuong_diem_the_chua_nhan],
+    ['label' => 'Tích lũy tiêu dùng', 'da_nhan' => $tich_luy_tieu_dung_da_nhan, 'chua_nhan' => $tich_luy_tieu_dung_chua_nhan],
 ];
 $tong_da_nhan = array_sum(array_column($thu_nhap_rows, 'da_nhan'));
 $tong_chua_nhan = array_sum(array_column($thu_nhap_rows, 'chua_nhan'));
@@ -221,11 +222,15 @@ $active_nav = 'dashboard';
     </div>
 
 
-    <!-- 3 thống kê -->
-    <div class="tpud-grid tpud-grid-3">
+    <!-- 4 thống kê -->
+    <div class="tpud-grid tpud-grid-4">
         <div class="tpud-card">
             <div class="tpud-card-label">Điểm tiêu dùng (thẻ)</div>
             <div class="tpud-card-value" style="margin-bottom:0"><?= number_format($card_balance, 0) ?> điểm</div>
+        </div>
+        <div class="tpud-card">
+            <div class="tpud-card-label">Ví Tích lũy tiêu dùng</div>
+            <div class="tpud-card-value" style="margin-bottom:0"><?= number_format($wallet['tich_luy_tieu_dung'], 0) ?> VND</div>
         </div>
         <div class="tpud-card">
             <div class="tpud-card-label">Thành viên trực tiếp (F1)</div>
@@ -243,7 +248,8 @@ $active_nav = 'dashboard';
             <h4 style="font-size:15px;">Thống kê thu nhập</h4>
             <a href="<?php echo _DOMAIN_ROOT_URL; ?>/?m=user&f=so_do_truc_tiep">Xem chi tiết theo cấp F1-F8 &rarr;</a>
         </div>
-        <div class="tpud-hh-row"><span>Tổng thu nhập: </span><strong><?= number_format($wallet['tong'], 0) ?> VND</strong></div>
+        <div style="padding:9px 0;">Tổng thu nhập: <strong><?= number_format($wallet['tong'], 0) ?> VND</strong></div>
+        <div style="padding:0 0 9px;">Doanh số (hoa hồng trực tiếp): <strong><?= number_format($total_doanh_so, 0) ?> VND</strong></div>
         <div style="overflow-x:auto; margin-top:10px;">
             <table class="tpud-table">
                 <thead>
@@ -274,7 +280,6 @@ $active_nav = 'dashboard';
                 </tfoot>
             </table>
         </div>
-        <div style="margin-top:8px; font-size:13px; color:#6b7280;">* Hoa hồng trực tiếp doanh số <?= number_format($total_doanh_so, 0) ?> VND. </div>
         <?php if ($tong_chua_nhan > 0 && !$business_active): ?>
             <div style="margin-top:4px; font-size:13px; color:#b45309;">* Có khoản đang chờ vì bạn chưa kích hoạt gói 5.000.000đ. Kích hoạt để nhận toàn bộ vào ví/điểm thẻ.</div>
         <?php endif; ?>
@@ -297,7 +302,8 @@ $active_nav = 'dashboard';
 
                 <div class="mb-2">
                     <label for="amount" class="form-label">Số tiền</label>
-                    <input type="number" class="form-control" name="amount" id="amount" required>
+                    <input type="number" class="form-control" name="amount" id="amount" min="100000" required>
+                    <small class="form-text text-muted">Số tiền rút tối thiểu 100.000đ/lần.</small>
                 </div>
                 <div class="mb-2">
                     <label for="bank_name" class="form-label">Tên ngân hàng</label>
@@ -367,6 +373,13 @@ $active_nav = 'dashboard';
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             const amount = parseFloat(form.amount.value);
+
+            if (amount < 100000) {
+                alertBox.className = 'alert alert-danger';
+                alertBox.innerText = 'Số tiền rút tối thiểu là 100.000đ.';
+                alertBox.classList.remove('d-none');
+                return;
+            }
 
             if (amount > totalHoaHong) {
                 alertBox.className = 'alert alert-danger';
