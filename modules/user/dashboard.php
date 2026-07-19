@@ -138,8 +138,8 @@ $active_nav = 'dashboard';
                     <span class="tpud-badge tpud-badge-danger">Chưa kích hoạt</span>
 
                     <p style="margin-top: 10px; color: #f70707; font-size: 14px;">
-                        Để trở thành thành viên Kinh doanh của Thuận Phát và nhận quyền lợi, thưởng, vui lòng mua 1 combo Thành Viên
-                        <a href="<?php echo _DOMAIN_ROOT_URL; ?>/vn/san-pham/" style="font-size: 20px; color: #007bff; text-decoration: underline;"> tại đây </a>
+                        Để trở thành thành viên Kinh doanh để nhận quyền lợi, và chính sách thưởng của Thuận Phát, vui lòng mua 1 combo Thành Viên
+                        <a href="<?php echo _DOMAIN_ROOT_URL; ?>/vn/san-pham/" style="font-size: 18px; color: #007bff; text-decoration: underline;"> tại đây </a>
                     </p>
                 <?php endif; ?>
             </div>

@@ -151,6 +151,7 @@ if (isset($_GET['export']) && $_GET['export'] == 1) {
             IFNULL(uw.tong, 0) AS vi_tong,
             IFNULL(uw.kha_dung, 0) AS vi_kha_dung,
             IFNULL(uw.tieu_dung, 0) AS vi_tieu_dung,
+            IFNULL(uw.tich_luy_tieu_dung, 0) AS vi_tich_luy_tieu_dung,
             IFNULL(uw.tai_tieu_dung, 0) AS vi_tai_tieu_dung,
             IFNULL(uw.thue_phi, 0) AS vi_thue_phi,
             IFNULL(cc.balance, 0) AS diem_the_tieu_dung
@@ -176,7 +177,7 @@ if (isset($_GET['export']) && $_GET['export'] == 1) {
         'Số F2', 'Hoa hồng hưởng từ F2',
         'Số F3', 'Hoa hồng hưởng từ F3',
         'Tổng Hoa Hồng',
-        'Ví tổng', 'Ví khả dụng', 'Ví tiêu dùng', 'Ví tái tiêu dùng', 'Ví thuế phí',
+        'Ví tổng', 'Ví khả dụng', 'Ví tiêu dùng', 'Ví tích lũy tiêu dùng', 'Ví tái tiêu dùng', 'Ví thuế phí',
         'Điểm thẻ tiêu dùng'
     ];
 
@@ -199,6 +200,7 @@ if (isset($_GET['export']) && $_GET['export'] == 1) {
             (float)$row['vi_tong'],
             (float)$row['vi_kha_dung'],
             (float)$row['vi_tieu_dung'],
+            (float)$row['vi_tich_luy_tieu_dung'],
             (float)$row['vi_tai_tieu_dung'],
             (float)$row['vi_thue_phi'],
             (float)$row['diem_the_tieu_dung'],
@@ -245,6 +247,7 @@ $sql = "
          WHERE c.user_id = u.id) AS tong_hoa_hong,
         IFNULL(uw.kha_dung, 0) AS vi_kha_dung,
         IFNULL(uw.tieu_dung, 0) AS vi_tieu_dung,
+        IFNULL(uw.tich_luy_tieu_dung, 0) AS vi_tich_luy_tieu_dung,
         IFNULL(uw.tai_tieu_dung, 0) AS vi_tai_tieu_dung,
         IFNULL(uw.thue_phi, 0) AS vi_thue_phi,
         IFNULL(cc.balance, 0) AS diem_the_tieu_dung
@@ -289,6 +292,7 @@ $result = $stmt->get_result();
         <th>Doanh số</th>
         <th>Ví khả dụng</th>
         <th>Ví tiêu dùng</th>
+        <th>Ví tích lũy tiêu dùng</th>
         <th>Ví tái tiêu dùng</th>
         <th>Ví thuế phí</th>
         <th>Điểm thẻ tiêu dùng</th>
@@ -314,6 +318,7 @@ $result = $stmt->get_result();
             <td><?= number_format($row['direct_sales'], 0, ',', '.') ?>đ</td>
             <td><?= number_format($row['vi_kha_dung'], 0, ',', '.') ?>đ</td>
             <td><?= number_format($row['vi_tieu_dung'], 0, ',', '.') ?>đ</td>
+            <td><?= number_format($row['vi_tich_luy_tieu_dung'], 0, ',', '.') ?>đ</td>
             <td><?= number_format($row['vi_tai_tieu_dung'], 0, ',', '.') ?>đ</td>
             <td><?= number_format($row['vi_thue_phi'], 0, ',', '.') ?>đ</td>
             <td><strong><?= number_format($row['diem_the_tieu_dung'], 0, ',', '.') ?>đ</strong></td>

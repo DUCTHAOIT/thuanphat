@@ -89,7 +89,9 @@ while ($row = $res->fetch_assoc()) $spillover_waiting_members[] = $row;
 $stmt->close();
 
 // ----- Lịch sử hoa hồng điều tầng + thưởng (mục 6 BUSINESS_RULES.md) -----
-// Gộp 2 nguồn: commissions (type='spillover' hoặc 'rank_bonus') và card_point_bonuses (thưởng điểm thẻ).
+// Gộp 2 nguồn: commissions (type='spillover' hoặc 'rank_bonus') và accumulated_consumption_bonuses (Tích
+// lũy tiêu dùng, cập nhật 2026-07-13 - đổi tên từ "thưởng điểm thẻ", không còn cột level vì không còn chia
+// theo tầng cây - dùng NULL AS level để khớp cấu trúc UNION).
 // Truyền mảng params động vào bind_param (tương thích PHP 5/7, không dùng splat operator)
 function bindParamsArray($stmt, $types, array $params)
 {
@@ -108,7 +110,7 @@ $sf_filter_level = trim($_GET['level'] ?? '');
 $sf_filter_from = trim($_GET['from'] ?? '');
 $sf_filter_to = trim($_GET['to'] ?? '');
 
-if (!in_array($sf_filter_type, ['spillover', 'rank_bonus', 'card_point'], true)) $sf_filter_type = '';
+if (!in_array($sf_filter_type, ['spillover', 'rank_bonus', 'accumulated_consumption'], true)) $sf_filter_type = '';
 if (!in_array($sf_filter_status, ['pending', 'released'], true)) $sf_filter_status = '';
 if (!ctype_digit($sf_filter_level) || (int) $sf_filter_level < 1 || (int) $sf_filter_level > 9) $sf_filter_level = '';
 
@@ -116,8 +118,8 @@ $sf_unionSql = "
     SELECT order_id, level, type, amount, status, created_at
     FROM commissions WHERE user_id = ? AND type IN ('spillover','rank_bonus')
     UNION ALL
-    SELECT order_id, level, 'card_point' AS type, amount, status, created_at
-    FROM card_point_bonuses WHERE user_id = ?
+    SELECT order_id, NULL AS level, 'accumulated_consumption' AS type, amount, status, created_at
+    FROM accumulated_consumption_bonuses WHERE user_id = ?
 ";
 
 $sf_where = [];
@@ -196,7 +198,7 @@ $stmt = $mysqli->prepare("
     SELECT status, SUM(amount) AS total FROM (
         SELECT status, amount FROM commissions WHERE user_id = ? AND type IN ('spillover','rank_bonus')
         UNION ALL
-        SELECT status, amount FROM card_point_bonuses WHERE user_id = ?
+        SELECT status, amount FROM accumulated_consumption_bonuses WHERE user_id = ?
     ) t
     GROUP BY status
 ");
@@ -209,7 +211,7 @@ while ($row = $res->fetch_assoc()) {
 }
 $stmt->close();
 
-$sf_type_label = ['spillover' => 'Hoa hồng điều tầng', 'rank_bonus' => 'Thưởng danh hiệu', 'card_point' => 'Thưởng điểm thẻ tiêu dùng'];
+$sf_type_label = ['spillover' => 'Hoa hồng điều tầng', 'rank_bonus' => 'Thưởng danh hiệu', 'accumulated_consumption' => 'Tích lũy tiêu dùng'];
 $sf_status_label = ['pending' => 'Chưa nhận', 'released' => 'Đã nhận'];
 $sf_status_class = ['pending' => 'tpud-badge-warning', 'released' => 'tpud-badge-success'];
 

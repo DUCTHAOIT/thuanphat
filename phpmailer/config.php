@@ -1,8 +1,12 @@
 <?php 
 function sendMailer($title, $content, $nTo, $mTo, $diachicc='', $emailFrom, $nameFrom){
 	$nFrom = "CTY CỔ PHẦN TM QUỐC TẾ THUẬN PHÁT";    //mail duoc gui tu dau, thuong de ten cong ty ban
+	// Gmail (dang dung)
 	$mFrom = 'thuanphatitcjsc@gmail.com';  //dia chi email cua ban
 	$mPass = 'ueuhgdtfqrtvacjz';       //mat khau email cua ban
+	// Webmail hosting (cu) - giu lai de sau can dung lai
+	//$mFrom = 'support@thuanphatitc.vn';
+	//$mPass = 'anhthao92a@A';
 	$nTo = $nTo; //Ten nguoi nhan
 	$mTo = $mTo;   //dia chi nhan mail
 	
@@ -30,12 +34,12 @@ function sendMailer($title, $content, $nTo, $mTo, $diachicc='', $emailFrom, $nam
 	$mail->CharSet  = "utf-8";
 	$mail->SMTPDebug  = 0;   // enables SMTP debug information (for testing)
 	$mail->SMTPAuth   = true;    // enable SMTP authentication
-	//$mail->SMTPSecure = "ssl";   // sets the prefix to the servier
-	//$mail->Host       = "smtp.gmail.com";    // sever gui mail.
-	//$mail->Port       = 465;         // cong gui mail de nguyen
-	$mail->SMTPSecure = "tls";                 // sets the prefix to the servier
-	$mail->Host       = "smtp.gmail.com";        
-	$mail->Port       = 587;
+	$mail->SMTPSecure = "ssl";   // sets the prefix to the servier
+	$mail->Host       = "smtp.gmail.com";    // sever gui mail.
+	$mail->Port       = 465;         // cong gui mail de nguyen
+	//$mail->SMTPSecure = "tls";                 // Webmail hosting (cu) - giu lai de sau can dung lai
+	//$mail->Host       = "mail.thuanphatitc.vn";
+	//$mail->Port       = 587;
 	
 	$mail->Username   = $mFrom;  // GMAIL username
 	$mail->Password   = $mPass;               // GMAIL password

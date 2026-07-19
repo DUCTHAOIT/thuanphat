@@ -151,11 +151,91 @@
       </tr>
 
       <tr>
-        <td style="border-bottom:1ps solid #f2f2f2">% tối đa thanh toán bằng điểm thẻ tiêu dùng</td>
+        <td style="border-bottom:1ps solid #f2f2f2; width:320px !important; min-width:320px !important; max-width:320px !important;">% tối đa thanh toán bằng điểm thẻ tiêu dùng</td>
         <td style="border-bottom:1ps solid #f2f2f2">
           <input type="text" class="form-control" name="card_payment_percent" style="width:100px;"
             value="{if $arr.card_payment_percent==''}100{else}{$arr.card_payment_percent}{/if}" />
           <!-- <em>(0-100, mục 3 BUSINESS_RULES.md - đơn hàng chỉ được thanh toán tối đa % này bằng điểm thẻ tiêu dùng)</em> -->
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1ps solid #f2f2f2; width:320px !important; min-width:320px !important; max-width:320px !important;">% quỹ chia hoa hồng trích vào quỹ vận hành</td>
+        <td style="border-bottom:1ps solid #f2f2f2">
+          <input type="text" class="form-control" name="operating_fund_percent" style="width:100px;"
+            value="{if $arr.operating_fund_percent==''}10{else}{$arr.operating_fund_percent}{/if}" />
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1ps solid #f2f2f2; width:320px !important; min-width:320px !important; max-width:320px !important;">% quỹ chia hoa hồng trích vào Tích lũy tiêu dùng</td>
+        <td style="border-bottom:1ps solid #f2f2f2">
+          <input type="text" class="form-control" name="accumulated_consumption_percent" style="width:100px;"
+            value="{if $arr.accumulated_consumption_percent==''}10{else}{$arr.accumulated_consumption_percent}{/if}" />
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1ps solid #f2f2f2; width:320px !important; min-width:320px !important; max-width:320px !important;">% quỹ chia hoa hồng trích vào thưởng tiêu dùng tuần hoàn</td>
+        <td style="border-bottom:1ps solid #f2f2f2">
+          <input type="text" class="form-control" name="card_recurring_percent" style="width:100px;"
+            value="{if $arr.card_recurring_percent==''}16{else}{$arr.card_recurring_percent}{/if}" />
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1ps solid #f2f2f2; width:320px !important; min-width:320px !important; max-width:320px !important;">% thưởng tiêu dùng tuần hoàn chia cho tuyến trên<br /><small style="color:#6b7280; font-weight:normal;">(còn lại vào Quỹ tiêu dùng tuần hoàn công ty)</small></td>
+        <td style="border-bottom:1ps solid #f2f2f2">
+          <input type="text" class="form-control" name="recurring_consumption_ancestor_percent" style="width:100px;"
+            value="{if $arr.recurring_consumption_ancestor_percent==''}70{else}{$arr.recurring_consumption_ancestor_percent}{/if}" />
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1ps solid #f2f2f2; vertical-align:top;">Tỉ lệ % hoa hồng theo tầng F1-F8<br />(mục 4 &amp; 6 BUSINESS_RULES.md)</td>
+        <td style="border-bottom:1ps solid #f2f2f2">
+          <table class="table table-bordered" style="width:auto;">
+            <tr>
+              <th>Tầng</th>
+              <th>Hoa hồng sơ đồ trực tiếp (%)</th>
+              <th>Hoa hồng cây điều tầng (%)</th>
+            </tr>
+            <tr>
+              <td>F1</td>
+              <td><input type="text" class="form-control" name="f1" style="width:90px;" value="{if $arr.f1==''}16{else}{$arr.f1*100}{/if}" /></td>
+              <td><input type="text" class="form-control" name="spillover_f1" style="width:90px;" value="{if $arr.spillover_f1==''}3{else}{$arr.spillover_f1*100}{/if}" /></td>
+            </tr>
+            <tr>
+              <td>F2</td>
+              <td><input type="text" class="form-control" name="f2" style="width:90px;" value="{if $arr.f2==''}2{else}{$arr.f2*100}{/if}" /></td>
+              <td><input type="text" class="form-control" name="spillover_f2" style="width:90px;" value="{if $arr.spillover_f2==''}3{else}{$arr.spillover_f2*100}{/if}" /></td>
+            </tr>
+            <tr>
+              <td>F3</td>
+              <td><input type="text" class="form-control" name="f3" style="width:90px;" value="{if $arr.f3==''}2{else}{$arr.f3*100}{/if}" /></td>
+              <td><input type="text" class="form-control" name="spillover_f3" style="width:90px;" value="{if $arr.spillover_f3==''}3{else}{$arr.spillover_f3*100}{/if}" /></td>
+            </tr>
+            <tr>
+              <td>F4</td>
+              <td><input type="text" class="form-control" name="f4" style="width:90px;" value="{if $arr.f4==''}2{else}{$arr.f4*100}{/if}" /></td>
+              <td><input type="text" class="form-control" name="spillover_f4" style="width:90px;" value="{if $arr.spillover_f4==''}3{else}{$arr.spillover_f4*100}{/if}" /></td>
+            </tr>
+            <tr>
+              <td>F5</td>
+              <td><input type="text" class="form-control" name="f5" style="width:90px;" value="{if $arr.f5==''}2{else}{$arr.f5*100}{/if}" /></td>
+              <td><input type="text" class="form-control" name="spillover_f5" style="width:90px;" value="{if $arr.spillover_f5==''}3{else}{$arr.spillover_f5*100}{/if}" /></td>
+            </tr>
+            <tr>
+              <td>F6</td>
+              <td><input type="text" class="form-control" name="f6" style="width:90px;" value="{if $arr.f6==''}2{else}{$arr.f6*100}{/if}" /></td>
+              <td><input type="text" class="form-control" name="spillover_f6" style="width:90px;" value="{if $arr.spillover_f6==''}3{else}{$arr.spillover_f6*100}{/if}" /></td>
+            </tr>
+            <tr>
+              <td>F7</td>
+              <td><input type="text" class="form-control" name="f7" style="width:90px;" value="{if $arr.f7==''}2{else}{$arr.f7*100}{/if}" /></td>
+              <td><input type="text" class="form-control" name="spillover_f7" style="width:90px;" value="{if $arr.spillover_f7==''}3{else}{$arr.spillover_f7*100}{/if}" /></td>
+            </tr>
+            <tr>
+              <td>F8</td>
+              <td><input type="text" class="form-control" name="f8" style="width:90px;" value="{if $arr.f8==''}2{else}{$arr.f8*100}{/if}" /></td>
+              <td><input type="text" class="form-control" name="spillover_f8" style="width:90px;" value="{if $arr.spillover_f8==''}3{else}{$arr.spillover_f8*100}{/if}" /></td>
+            </tr>
+          </table>
         </td>
       </tr>
       <tr>

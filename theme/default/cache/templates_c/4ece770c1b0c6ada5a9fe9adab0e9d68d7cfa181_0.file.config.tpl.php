@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 3.1.36, created on 2026-07-11 16:10:13
+/* Smarty version 3.1.36, created on 2026-07-16 17:25:15
   from 'C:\xampp\htdocs\thuanphatitc.vn\admin80\theme\default\templates\config.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '3.1.36',
-  'unifunc' => 'content_6a524ec5644a61_82777192',
+  'unifunc' => 'content_6a58f7dbc515b4_40410545',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     '4ece770c1b0c6ada5a9fe9adab0e9d68d7cfa181' => 
     array (
       0 => 'C:\\xampp\\htdocs\\thuanphatitc.vn\\admin80\\theme\\default\\templates\\config.tpl',
-      1 => 1783779010,
+      1 => 1784215421,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_6a524ec5644a61_82777192 (Smarty_Internal_Template $_smarty_tpl) {
+function content_6a58f7dbc515b4_40410545 (Smarty_Internal_Template $_smarty_tpl) {
 ?><form name="frmmain" action="index.php" method="post" enctype="multipart/form-data">
 
   <input type="hidden" name="m" value="config" />
@@ -193,13 +193,133 @@ function content_6a524ec5644a61_82777192 (Smarty_Internal_Template $_smarty_tpl)
       </tr>
 
       <tr>
-        <td style="border-bottom:1ps solid #f2f2f2">% tối đa thanh toán bằng điểm thẻ tiêu dùng</td>
+        <td style="border-bottom:1ps solid #f2f2f2; width:320px !important; min-width:320px !important; max-width:320px !important;">% tối đa thanh toán bằng điểm thẻ tiêu dùng</td>
         <td style="border-bottom:1ps solid #f2f2f2">
           <input type="text" class="form-control" name="card_payment_percent" style="width:100px;"
             value="<?php if ($_smarty_tpl->tpl_vars['arr']->value['card_payment_percent'] == '') {?>100<?php } else {
 echo $_smarty_tpl->tpl_vars['arr']->value['card_payment_percent'];
 }?>" />
           <!-- <em>(0-100, mục 3 BUSINESS_RULES.md - đơn hàng chỉ được thanh toán tối đa % này bằng điểm thẻ tiêu dùng)</em> -->
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1ps solid #f2f2f2; width:320px !important; min-width:320px !important; max-width:320px !important;">% quỹ chia hoa hồng trích vào quỹ vận hành</td>
+        <td style="border-bottom:1ps solid #f2f2f2">
+          <input type="text" class="form-control" name="operating_fund_percent" style="width:100px;"
+            value="<?php if ($_smarty_tpl->tpl_vars['arr']->value['operating_fund_percent'] == '') {?>10<?php } else {
+echo $_smarty_tpl->tpl_vars['arr']->value['operating_fund_percent'];
+}?>" />
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1ps solid #f2f2f2; width:320px !important; min-width:320px !important; max-width:320px !important;">% quỹ chia hoa hồng trích vào Tích lũy tiêu dùng</td>
+        <td style="border-bottom:1ps solid #f2f2f2">
+          <input type="text" class="form-control" name="accumulated_consumption_percent" style="width:100px;"
+            value="<?php if ($_smarty_tpl->tpl_vars['arr']->value['accumulated_consumption_percent'] == '') {?>10<?php } else {
+echo $_smarty_tpl->tpl_vars['arr']->value['accumulated_consumption_percent'];
+}?>" />
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1ps solid #f2f2f2; width:320px !important; min-width:320px !important; max-width:320px !important;">% quỹ chia hoa hồng trích vào thưởng tiêu dùng tuần hoàn</td>
+        <td style="border-bottom:1ps solid #f2f2f2">
+          <input type="text" class="form-control" name="card_recurring_percent" style="width:100px;"
+            value="<?php if ($_smarty_tpl->tpl_vars['arr']->value['card_recurring_percent'] == '') {?>16<?php } else {
+echo $_smarty_tpl->tpl_vars['arr']->value['card_recurring_percent'];
+}?>" />
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1ps solid #f2f2f2; width:320px !important; min-width:320px !important; max-width:320px !important;">% thưởng tiêu dùng tuần hoàn chia cho tuyến trên<br /><small style="color:#6b7280; font-weight:normal;">(còn lại vào Quỹ tiêu dùng tuần hoàn công ty)</small></td>
+        <td style="border-bottom:1ps solid #f2f2f2">
+          <input type="text" class="form-control" name="recurring_consumption_ancestor_percent" style="width:100px;"
+            value="<?php if ($_smarty_tpl->tpl_vars['arr']->value['recurring_consumption_ancestor_percent'] == '') {?>70<?php } else {
+echo $_smarty_tpl->tpl_vars['arr']->value['recurring_consumption_ancestor_percent'];
+}?>" />
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1ps solid #f2f2f2; vertical-align:top;">Tỉ lệ % hoa hồng theo tầng F1-F8<br />(mục 4 &amp; 6 BUSINESS_RULES.md)</td>
+        <td style="border-bottom:1ps solid #f2f2f2">
+          <table class="table table-bordered" style="width:auto;">
+            <tr>
+              <th>Tầng</th>
+              <th>Hoa hồng sơ đồ trực tiếp (%)</th>
+              <th>Hoa hồng cây điều tầng (%)</th>
+            </tr>
+            <tr>
+              <td>F1</td>
+              <td><input type="text" class="form-control" name="f1" style="width:90px;" value="<?php if ($_smarty_tpl->tpl_vars['arr']->value['f1'] == '') {?>16<?php } else {
+echo $_smarty_tpl->tpl_vars['arr']->value['f1']*100;
+}?>" /></td>
+              <td><input type="text" class="form-control" name="spillover_f1" style="width:90px;" value="<?php if ($_smarty_tpl->tpl_vars['arr']->value['spillover_f1'] == '') {?>3<?php } else {
+echo $_smarty_tpl->tpl_vars['arr']->value['spillover_f1']*100;
+}?>" /></td>
+            </tr>
+            <tr>
+              <td>F2</td>
+              <td><input type="text" class="form-control" name="f2" style="width:90px;" value="<?php if ($_smarty_tpl->tpl_vars['arr']->value['f2'] == '') {?>2<?php } else {
+echo $_smarty_tpl->tpl_vars['arr']->value['f2']*100;
+}?>" /></td>
+              <td><input type="text" class="form-control" name="spillover_f2" style="width:90px;" value="<?php if ($_smarty_tpl->tpl_vars['arr']->value['spillover_f2'] == '') {?>3<?php } else {
+echo $_smarty_tpl->tpl_vars['arr']->value['spillover_f2']*100;
+}?>" /></td>
+            </tr>
+            <tr>
+              <td>F3</td>
+              <td><input type="text" class="form-control" name="f3" style="width:90px;" value="<?php if ($_smarty_tpl->tpl_vars['arr']->value['f3'] == '') {?>2<?php } else {
+echo $_smarty_tpl->tpl_vars['arr']->value['f3']*100;
+}?>" /></td>
+              <td><input type="text" class="form-control" name="spillover_f3" style="width:90px;" value="<?php if ($_smarty_tpl->tpl_vars['arr']->value['spillover_f3'] == '') {?>3<?php } else {
+echo $_smarty_tpl->tpl_vars['arr']->value['spillover_f3']*100;
+}?>" /></td>
+            </tr>
+            <tr>
+              <td>F4</td>
+              <td><input type="text" class="form-control" name="f4" style="width:90px;" value="<?php if ($_smarty_tpl->tpl_vars['arr']->value['f4'] == '') {?>2<?php } else {
+echo $_smarty_tpl->tpl_vars['arr']->value['f4']*100;
+}?>" /></td>
+              <td><input type="text" class="form-control" name="spillover_f4" style="width:90px;" value="<?php if ($_smarty_tpl->tpl_vars['arr']->value['spillover_f4'] == '') {?>3<?php } else {
+echo $_smarty_tpl->tpl_vars['arr']->value['spillover_f4']*100;
+}?>" /></td>
+            </tr>
+            <tr>
+              <td>F5</td>
+              <td><input type="text" class="form-control" name="f5" style="width:90px;" value="<?php if ($_smarty_tpl->tpl_vars['arr']->value['f5'] == '') {?>2<?php } else {
+echo $_smarty_tpl->tpl_vars['arr']->value['f5']*100;
+}?>" /></td>
+              <td><input type="text" class="form-control" name="spillover_f5" style="width:90px;" value="<?php if ($_smarty_tpl->tpl_vars['arr']->value['spillover_f5'] == '') {?>3<?php } else {
+echo $_smarty_tpl->tpl_vars['arr']->value['spillover_f5']*100;
+}?>" /></td>
+            </tr>
+            <tr>
+              <td>F6</td>
+              <td><input type="text" class="form-control" name="f6" style="width:90px;" value="<?php if ($_smarty_tpl->tpl_vars['arr']->value['f6'] == '') {?>2<?php } else {
+echo $_smarty_tpl->tpl_vars['arr']->value['f6']*100;
+}?>" /></td>
+              <td><input type="text" class="form-control" name="spillover_f6" style="width:90px;" value="<?php if ($_smarty_tpl->tpl_vars['arr']->value['spillover_f6'] == '') {?>3<?php } else {
+echo $_smarty_tpl->tpl_vars['arr']->value['spillover_f6']*100;
+}?>" /></td>
+            </tr>
+            <tr>
+              <td>F7</td>
+              <td><input type="text" class="form-control" name="f7" style="width:90px;" value="<?php if ($_smarty_tpl->tpl_vars['arr']->value['f7'] == '') {?>2<?php } else {
+echo $_smarty_tpl->tpl_vars['arr']->value['f7']*100;
+}?>" /></td>
+              <td><input type="text" class="form-control" name="spillover_f7" style="width:90px;" value="<?php if ($_smarty_tpl->tpl_vars['arr']->value['spillover_f7'] == '') {?>3<?php } else {
+echo $_smarty_tpl->tpl_vars['arr']->value['spillover_f7']*100;
+}?>" /></td>
+            </tr>
+            <tr>
+              <td>F8</td>
+              <td><input type="text" class="form-control" name="f8" style="width:90px;" value="<?php if ($_smarty_tpl->tpl_vars['arr']->value['f8'] == '') {?>2<?php } else {
+echo $_smarty_tpl->tpl_vars['arr']->value['f8']*100;
+}?>" /></td>
+              <td><input type="text" class="form-control" name="spillover_f8" style="width:90px;" value="<?php if ($_smarty_tpl->tpl_vars['arr']->value['spillover_f8'] == '') {?>3<?php } else {
+echo $_smarty_tpl->tpl_vars['arr']->value['spillover_f8']*100;
+}?>" /></td>
+            </tr>
+          </table>
         </td>
       </tr>
       <tr>

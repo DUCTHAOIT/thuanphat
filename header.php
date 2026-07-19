@@ -36,12 +36,14 @@
 	$MemberName=getMemberNameID($username,"name");
 	$MemberEmail=getMemberNameID($username,"username");
 	$Membermobile=getMemberNameID($username,"mobile");
+	$MemberAddress=getMemberNameID($username,"address");
 	$Memberloai=getMemberNameID($username,"loai");
 	$MemberHlv=getMemberNameID($username,"permit");
-	
+
 	$smarty->assign('MemberName',$MemberName);
 	$smarty->assign('MemberEmail',$MemberEmail);
 	$smarty->assign('Membermobile',$Membermobile);
+	$smarty->assign('MemberAddress',$MemberAddress);
 	$smarty->assign('Memberloai',$Memberloai);
 	$smarty->assign('MemberHlv',$MemberHlv);
 	

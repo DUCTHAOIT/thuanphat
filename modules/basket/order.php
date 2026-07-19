@@ -17,22 +17,33 @@ foreach ($_SESSION["basket"] as $product_id => $item) {
 
 // Tính tổng tiền và lưu vào mảng sản phẩm
 $total_amount = 0;
+$order_commission_fund = 0; // tổng "hoa hồng sản phẩm" (commission_amount) của đơn - trần cho điểm thẻ + Tích lũy tiêu dùng bên dưới
 $order_items = [];
 $product_lines = [];
 
 foreach ($products as $product_id => $quantity) {
-    $result = $mysqli->query("SELECT name, price FROM sys_product WHERE id = $product_id");
+    $result = $mysqli->query("SELECT name, price, commission_amount FROM sys_product WHERE id = $product_id");
     $product = $result->fetch_assoc();
     $name = $product['name'];
     $price = (int)$product['price'];
     $total = $price * $quantity;
     $total_amount += $total;
+    $order_commission_fund += (float)$product['commission_amount'] * $quantity;
 
     $order_items[] = [
         'product_id' => $product_id,
         'quantity' => $quantity,
         'price' => $price
     ];
+}
+
+// Chặn tạo đơn khi giỏ hàng trống/đã được xử lý (vd. form bị gửi lại lần 2 sau khi
+// session basket đã bị xoá ở lần đặt hàng thành công trước đó) - tránh sinh đơn rác 0đ.
+if (empty($products) || $total_amount <= 0) {
+    echo "<div style=\"padding-top:160px; padding-bottom:160px;\" align=\"center\">
+        <strong>Giỏ hàng trống hoặc đã được xử lý, vui lòng quay lại trang giỏ hàng.</strong></div>";
+    include_once("footer.php");
+    exit;
 }
 
 // Thông tin người mua
@@ -67,16 +78,17 @@ foreach ($products as $product_id => $quantity) {
     $products_text .= $product['name'] . ": " . number_format($product['price'], 0, ',', '.') . "đ x $quantity = " . number_format($line_total, 0, ',', '.') . "đ\n";
 }
 
-// Tạo đơn hàng + trừ điểm thẻ/ví thanh toán (mục 3 BUSINESS_RULES.md, cập nhật 2026-07-11) trong cùng 1
+// Tạo đơn hàng + trừ điểm thẻ/ví thanh toán (mục 3 BUSINESS_RULES.md, cập nhật 2026-07-13) trong cùng 1
 // transaction (mục 8.2). Khách tự chọn nguồn muốn dùng bằng checkbox trên trang giỏ hàng; trong các nguồn
-// đã chọn, hệ thống vẫn áp đúng thứ tự ưu tiên: điểm thẻ tiêu dùng -> ví tiêu dùng -> ví khả dụng -> còn
-// lại chuyển khoản (luồng upload ảnh chứng từ có sẵn, không đổi). Trừ ngay lúc đặt đơn (trước khi admin
-// duyệt) - nếu đơn bị admin từ chối sau đó thì được hoàn lại (processOrderRejection() trong
+// đã chọn, hệ thống vẫn áp đúng thứ tự ưu tiên: điểm thẻ tiêu dùng -> Tích lũy tiêu dùng -> ví tiêu dùng ->
+// ví khả dụng -> còn lại chuyển khoản (luồng upload ảnh chứng từ có sẵn, không đổi). Trừ ngay lúc đặt đơn
+// (trước khi admin duyệt) - nếu đơn bị admin từ chối sau đó thì được hoàn lại (processOrderRejection() trong
 // order_commission.php).
 // Kiểm tra lại ở server nguồn nào được TẤT CẢ sản phẩm trong giỏ chấp nhận (mục 3, cập nhật 2026-07-11) -
 // không tin trực tiếp lựa chọn từ client vì checkbox có thể bị ẩn/khoá sai qua sửa HTML.
 $acceptedSources = getAcceptedPaymentSources();
 $useCard = (getParamPost("use_card") ? true : false) && $acceptedSources['accept_card'];
+$useTichLuy = (getParamPost("use_tich_luy") ? true : false) && $acceptedSources['accept_tich_luy'];
 $useTieuDung = (getParamPost("use_tieu_dung") ? true : false) && $acceptedSources['accept_tieu_dung'];
 $useKhaDung = (getParamPost("use_kha_dung") ? true : false) && $acceptedSources['accept_kha_dung'];
 
@@ -110,9 +122,15 @@ try {
     }
 
     $cardAmount = 0;
+    $tichLuyAmount = 0;
     $tieuDungAmount = 0;
     $khaDungAmount = 0;
     $remaining = $total_amount;
+    // Điểm thẻ tiêu dùng + Tích lũy tiêu dùng dùng thanh toán, CỘNG LẠI, không được vượt quá tổng "hoa hồng
+    // sản phẩm" của đơn (order_commission_fund) - tránh quỹ chia hoa hồng (calculateCommissionFund()) bị kéo
+    // về 0 do khách trả bằng điểm/tích lũy nhiều hơn hoa hồng đơn tạo ra. Phần vượt trần tự động rơi xuống
+    // ví tiêu dùng/khả dụng/chuyển khoản như các trần khác đã có (card_payment_percent).
+    $commissionCapRemaining = $order_commission_fund;
 
     if ($useCard && $remaining > 0) {
         $stmt = $mysqli->prepare("SELECT value FROM sys_config WHERE name = 'card_payment_percent' AND lang = 'vn'");
@@ -121,8 +139,15 @@ try {
         $stmt->close();
 
         $maxCardByPercent = $total_amount * ($cardPaymentPercent / 100);
-        $cardAmount = debitConsumptionCardUpTo($mysqli, $user_id, min($remaining, $maxCardByPercent));
+        $cardAmount = debitConsumptionCardUpTo($mysqli, $user_id, min($remaining, $maxCardByPercent, $commissionCapRemaining));
         $remaining -= $cardAmount;
+        $commissionCapRemaining -= $cardAmount;
+    }
+
+    if ($useTichLuy && $remaining > 0) {
+        $tichLuyAmount = debitWalletUpTo($mysqli, $user_id, 'tich_luy_tieu_dung', min($remaining, $commissionCapRemaining), 'order', $order_id);
+        $remaining -= $tichLuyAmount;
+        $commissionCapRemaining -= $tichLuyAmount;
     }
 
     if ($useTieuDung && $remaining > 0) {
@@ -138,8 +163,20 @@ try {
     $cashAmount = $remaining;
     $commissionBaseAmount = $total_amount - $cardAmount;
 
-    $stmt = $mysqli->prepare("INSERT INTO order_payments (order_id, card_amount, tieu_dung_amount, kha_dung_amount, cash_amount, commission_base_amount) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("iddddd", $order_id, $cardAmount, $tieuDungAmount, $khaDungAmount, $cashAmount, $commissionBaseAmount);
+    // Đơn cần thanh toán 1 phần/toàn bộ bằng chuyển khoản (còn dư sau khi trừ hết các nguồn ví đã chọn) thì
+    // bắt buộc phải có ảnh chứng từ thanh toán - kiểm tra lại ở server, không chỉ tin validate JS phía client
+    // (checkSendMail() trong basket_list.tpl) vì JS có thể bị bỏ qua. Rollback toàn bộ (đơn, order_items, các
+    // khoản đã trừ ví) nếu thiếu, giống cách kiểm tra nguồn thanh toán ở trên (không tin dữ liệu client).
+    if ($cashAmount > 0 && $img === '') {
+        $mysqli->rollback();
+        echo "<div style=\"padding-top:160px; padding-bottom:160px;\" align=\"center\">
+            <strong>Đơn hàng cần chuyển khoản phần còn thiếu (" . number_format($cashAmount, 0, ',', '.') . "đ), vui lòng quay lại và upload ảnh chứng từ thanh toán trước khi xác nhận.</strong></div>";
+        include_once("footer.php");
+        exit;
+    }
+
+    $stmt = $mysqli->prepare("INSERT INTO order_payments (order_id, card_amount, tich_luy_amount, tieu_dung_amount, kha_dung_amount, cash_amount, commission_base_amount) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("idddddd", $order_id, $cardAmount, $tichLuyAmount, $tieuDungAmount, $khaDungAmount, $cashAmount, $commissionBaseAmount);
     $stmt->execute();
     $stmt->close();
 
@@ -157,6 +194,7 @@ sendTelegramNotify(
     "SĐT: " . htmlspecialchars($mobile) . "\n" .
     "Tổng tiền: " . number_format($total_amount, 0, ',', '.') . "đ\n" .
     "- Điểm thẻ tiêu dùng: " . number_format($cardAmount, 0, ',', '.') . "đ\n" .
+    "- Tích lũy tiêu dùng: " . number_format($tichLuyAmount, 0, ',', '.') . "đ\n" .
     "- Ví tiêu dùng: " . number_format($tieuDungAmount, 0, ',', '.') . "đ\n" .
     "- Ví khả dụng: " . number_format($khaDungAmount, 0, ',', '.') . "đ\n" .
     "- Còn lại chuyển khoản: " . number_format($cashAmount, 0, ',', '.') . "đ\n" .

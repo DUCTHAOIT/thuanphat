@@ -6,7 +6,7 @@
 	// hình riêng).
 	function getAcceptedPaymentSources(){
 		global $mysqli;
-		$default = ['accept_card' => true, 'accept_tieu_dung' => true, 'accept_kha_dung' => true];
+		$default = ['accept_card' => true, 'accept_tich_luy' => true, 'accept_tieu_dung' => true, 'accept_kha_dung' => true];
 
 		$basket = $_SESSION["basket"];
 		if (!$basket) return $default;
@@ -15,12 +15,13 @@
 		if (!$ids) return $default;
 
 		$in = implode(",", $ids);
-		$res = $mysqli->query("SELECT MIN(accept_card_payment) c, MIN(accept_tieu_dung_payment) t, MIN(accept_kha_dung_payment) k FROM sys_product WHERE id IN ($in)");
+		$res = $mysqli->query("SELECT MIN(accept_card_payment) c, MIN(accept_tich_luy_payment) tl, MIN(accept_tieu_dung_payment) t, MIN(accept_kha_dung_payment) k FROM sys_product WHERE id IN ($in)");
 		$row = $res ? $res->fetch_assoc() : null;
 		if (!$row || $row['c'] === null) return $default;
 
 		return [
 			'accept_card' => (int) $row['c'] === 1,
+			'accept_tich_luy' => (int) $row['tl'] === 1,
 			'accept_tieu_dung' => (int) $row['t'] === 1,
 			'accept_kha_dung' => (int) $row['k'] === 1,
 		];

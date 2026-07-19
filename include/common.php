@@ -435,7 +435,13 @@
 		$body 			  = $content;
 		$body             = eregi_replace("[\]",'',$body);
 		
-		$mail->IsSendmail(); // telling the class to use SendMail transport
+		$mail->IsSMTP(); // gui qua SMTP webmail hosting
+		$mail->Host       = "mail.thuanphatitc.vn";
+		$mail->Port       = 587;
+		$mail->SMTPSecure = "tls";
+		$mail->SMTPAuth   = true;
+		$mail->Username   = "support@thuanphatitc.vn";
+		$mail->Password   = "anhthao92a@A";
 		$mail->CharSet		= 	"UTF-8";
 		$mail->From       = $emailFrom;
 		$mail->FromName   = $nameFrom;			

@@ -4,7 +4,22 @@
 <script type="text/javascript" src="js/jscalendar/calendar.js"></script>
 <script type="text/javascript" src="js/jscalendar/lang/calendar-en.js"></script>
 <script type="text/javascript" src="js/jscalendar/calendar-setup.js"></script>
-<form name="frmmain" action="?m=product" method="post" enctype="multipart/form-data">
+<script type="text/javascript">
+	// Chặn ngay ở client trước khi submit (bổ sung 2026-07-16): validate lại ở server (action.php) vẫn giữ
+	// nguyên làm lớp an toàn cuối, nhưng nếu chặn ở đó thì trang phải load lại form từ DB, mất hết dữ liệu
+	// admin vừa nhập các trường khác. Chặn ở đây để admin sửa ngay tại chỗ, không mất gì.
+	function validateProductForm(f) {
+		var commission = parseFloat((f.commission_amount.value || "0").replace(/[.,]/g, "")) || 0;
+		var priceNew = parseFloat((f.price_new.value || "0").replace(/[.,]/g, "")) || 0;
+		if (priceNew > 0 && commission >= priceNew) {
+			alert("Hoa hồng sản phẩm phải nhỏ hơn giá niêm yết.");
+			f.commission_amount.focus();
+			return false;
+		}
+		return true;
+	}
+</script>
+<form name="frmmain" action="?m=product" method="post" enctype="multipart/form-data" onsubmit="return validateProductForm(this);">
 	<input type="hidden" name="op" value="addProduct" />
 	<input type="hidden" name="id" value="{$id}" />
 	<input type="hidden" name="imgsmall" value="{$arr.img}" />
@@ -101,7 +116,7 @@
 						<td align="right" style="padding-right:10px" nowrap="nowrap">Hoa hồng sản phẩm:</td>
 						<td>
 							<input name="commission_amount" type="text" style="width:80%" class="text" maxlength="20"
-								value="{if !$arr.commission_amount}0{else}{$arr.commission_amount}{/if}" />
+								value="{if !$arr.commission_amount}0{else}{$arr.commission_amount|string_format:"%.0f"}{/if}" />
 
 						</td>
 					</tr>
@@ -110,6 +125,9 @@
 						<td>
 							<label><input name="accept_card_payment" type="checkbox" {if !$arr.id ||
 									$arr.accept_card_payment==1} checked="checked" {/if} /> Điểm thẻ tiêu
+								dùng</label>&nbsp;&nbsp;
+							<label><input name="accept_tich_luy_payment" type="checkbox" {if !$arr.id ||
+									$arr.accept_tich_luy_payment==1} checked="checked" {/if} /> Tích lũy tiêu
 								dùng</label>&nbsp;&nbsp;
 							<label><input name="accept_tieu_dung_payment" type="checkbox" {if !$arr.id ||
 									$arr.accept_tieu_dung_payment==1} checked="checked" {/if} /> Ví tiêu

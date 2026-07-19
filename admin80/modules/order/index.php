@@ -131,9 +131,11 @@ $count_stmt->close();
 $total_pages = ceil($total_rows / $limit);
 
 // Truy vấn lấy đơn hàng
-$sql = "SELECT t.*, u.name, u.email, u.mobile 
-        FROM orders t 
-        JOIN user u ON t.user_id = u.id 
+$sql = "SELECT t.*, u.name, u.email, u.mobile,
+               op.card_amount, op.tieu_dung_amount, op.kha_dung_amount, op.cash_amount
+        FROM orders t
+        JOIN user u ON t.user_id = u.id
+        LEFT JOIN order_payments op ON op.order_id = t.id
         WHERE t.status = 'pending'";
 
 $types = "";
@@ -196,6 +198,10 @@ $result = $stmt->get_result();
                 <th>Khách hàng</th>
                 <th>Đơn hàng</th>
                 <th>Tổng tiền</th>
+                <th>Điểm thẻ</th>
+                <th>Ví tiêu dùng</th>
+                <th>Ví khả dụng</th>
+                <th>Tiền mặt cần TT</th>
                 <th>Chứng từ</th>
                 <th>Địa chỉ giao</th>
                 <th>Lời nhắn</th>
@@ -212,9 +218,22 @@ $result = $stmt->get_result();
                         <?= htmlspecialchars($row['email']) ?><br>
                         <?= htmlspecialchars($row['mobile']) ?>
                     </td>
-                    <td><?= htmlspecialchars($row['products']) ?></td>
+                    <td>
+                        <?php $productsRaw = $row['products']; ?>
+                        <?php if (mb_strlen($productsRaw) > 100): ?>
+                            <span class="tpud-prod-short"><?= nl2br(htmlspecialchars(mb_substr($productsRaw, 0, 100))) ?>…</span>
+                            <span class="tpud-prod-full" style="display:none;"><?= nl2br(htmlspecialchars($productsRaw)) ?></span>
+                            <a href="#" class="tpud-prod-toggle" onclick="tpudToggleProducts(this); return false;">Xem thêm</a>
+                        <?php else: ?>
+                            <?= nl2br(htmlspecialchars($productsRaw)) ?>
+                        <?php endif; ?>
+                    </td>
                     <td><strong><?= number_format($row['amount'], 0) ?> VND</strong></td>
-                    <td><img src="../images/order/<?= $row['img']; ?>" style="width: 200px"></td>
+                    <td><?= number_format($row['card_amount'] ?? 0, 0) ?> VND</td>
+                    <td><?= number_format($row['tieu_dung_amount'] ?? 0, 0) ?> VND</td>
+                    <td><?= number_format($row['kha_dung_amount'] ?? 0, 0) ?> VND</td>
+                    <td><strong><?= number_format($row['cash_amount'] ?? 0, 0) ?> VND</strong></td>
+                    <td><a href="../images/order/<?= $row['img']; ?>" target="_blank"><img src="../images/order/<?= $row['img']; ?>" style="width: 90px"></a></td>
                     <td><?= htmlspecialchars($row['address']) ?></td>
                     <td><?= htmlspecialchars($row['note']) ?></td>
                     <td>
@@ -247,4 +266,21 @@ $result = $stmt->get_result();
     <?php endif; ?>
 </div>
 
+<script>
+function tpudToggleProducts(link) {
+    var td = link.closest('td');
+    var shortEl = td.querySelector('.tpud-prod-short');
+    var fullEl = td.querySelector('.tpud-prod-full');
+    var expanded = fullEl.style.display !== 'none';
+    if (expanded) {
+        fullEl.style.display = 'none';
+        shortEl.style.display = '';
+        link.textContent = 'Xem thêm';
+    } else {
+        fullEl.style.display = '';
+        shortEl.style.display = 'none';
+        link.textContent = 'Thu gọn';
+    }
+}
+</script>
 <?php include_once("footer.php"); ?>

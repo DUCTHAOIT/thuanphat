@@ -10,7 +10,7 @@ include_once("header.php");
 
 $user_id = getMemberNameID($username, "id");
 
-$wallet_label = ['tong' => 'Ví tổng', 'kha_dung' => 'Ví khả dụng', 'tieu_dung' => 'Ví tiêu dùng', 'tai_tieu_dung' => 'Ví tái tiêu dùng', 'thue_phi' => 'Ví thuế, phí'];
+$wallet_label = ['tong' => 'Ví tổng', 'kha_dung' => 'Ví khả dụng', 'tieu_dung' => 'Ví tiêu dùng', 'tich_luy_tieu_dung' => 'Ví tích lũy tiêu dùng', 'tai_tieu_dung' => 'Ví tái tiêu dùng', 'thue_phi' => 'Ví thuế, phí'];
 
 // Nội dung chi tiết: ref_type='commission' gộp chung 3 loại hoa hồng/thưởng (direct/spillover/rank_bonus)
 // nên phải join sang commissions.type mới tách được. Các ref_type khác giữ nhãn cũ.
@@ -23,6 +23,7 @@ $content_label_map = [
     'rebuy' => 'Tái tiêu dùng',
     'refund' => 'Hoàn tiền',
     'admin_adjust' => 'Điều chỉnh',
+    'accumulated_consumption' => 'Tích lũy tiêu dùng',
 ];
 
 function wallet_txn_content_label($ref_type, $commission_type, $content_label_map)

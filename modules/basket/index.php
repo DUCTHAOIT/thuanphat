@@ -121,12 +121,13 @@
             $cardBalance=(float)($stmt->get_result()->fetch_assoc()['balance'] ?? 0);
             $stmt->close();
 
-            $stmt=$mysqli->prepare("SELECT tieu_dung, kha_dung FROM user_wallets WHERE user_id = ?");
+            $stmt=$mysqli->prepare("SELECT tieu_dung, kha_dung, tich_luy_tieu_dung FROM user_wallets WHERE user_id = ?");
             $stmt->bind_param("i",$memberId);
             $stmt->execute();
             $walletRow=$stmt->get_result()->fetch_assoc();
             $tieuDungBalance=(float)($walletRow['tieu_dung'] ?? 0);
             $khaDungBalance=(float)($walletRow['kha_dung'] ?? 0);
+            $tichLuyBalance=(float)($walletRow['tich_luy_tieu_dung'] ?? 0);
             $stmt->close();
 
             $stmt=$mysqli->prepare("SELECT value FROM sys_config WHERE name = 'card_payment_percent' AND lang = 'vn'");
@@ -141,30 +142,110 @@
             $smarty->assign('cardBalance',$cardBalance);
             $smarty->assign('tieuDungBalance',$tieuDungBalance);
             $smarty->assign('khaDungBalance',$khaDungBalance);
+            $smarty->assign('tichLuyBalance',$tichLuyBalance);
             $smarty->assign('cardPaymentPercent',$cardPaymentPercent);
             $smarty->assign('acceptCard',$acceptedSources['accept_card']);
+            $smarty->assign('acceptTichLuy',$acceptedSources['accept_tich_luy']);
             $smarty->assign('acceptTieuDung',$acceptedSources['accept_tieu_dung']);
             $smarty->assign('acceptKhaDung',$acceptedSources['accept_kha_dung']);
+
+            // Thống kê đơn hàng của khách, hiển thị dưới danh sách sản phẩm trong giỏ hàng, có bộ lọc
+            // trạng thái + khoảng thời gian. Breakdown thanh toán lấy từ order_payments (mục 3, 11.3
+            // BUSINESS_RULES.md) - đơn tạo trước migration_2026-07-09 sẽ không có dòng order_payments,
+            // dùng LEFT JOIN + mặc định 0.
+            $orderStatusLabel = ['pending' => 'Chờ duyệt', 'approved' => 'Đã duyệt', 'rejected' => 'Từ chối'];
+            $orderFilterStatus = trim($_GET['order_status'] ?? '');
+            $orderFilterFrom = trim($_GET['order_from'] ?? '');
+            $orderFilterTo = trim($_GET['order_to'] ?? '');
+            if (!array_key_exists($orderFilterStatus, $orderStatusLabel)) $orderFilterStatus = '';
+
+            $ownOrdersWhere = ["o.user_id = ?"];
+            $ownOrdersParams = [$memberId];
+            $ownOrdersTypes = "i";
+            if ($orderFilterStatus !== '') {
+                $ownOrdersWhere[] = "o.status = ?";
+                $ownOrdersParams[] = $orderFilterStatus;
+                $ownOrdersTypes .= "s";
+            }
+            if ($orderFilterFrom !== '') {
+                $ownOrdersWhere[] = "o.created_at >= ?";
+                $ownOrdersParams[] = $orderFilterFrom . " 00:00:00";
+                $ownOrdersTypes .= "s";
+            }
+            if ($orderFilterTo !== '') {
+                $ownOrdersWhere[] = "o.created_at <= ?";
+                $ownOrdersParams[] = $orderFilterTo . " 23:59:59";
+                $ownOrdersTypes .= "s";
+            }
+            $ownOrdersWhereSql = implode(" AND ", $ownOrdersWhere);
+
+            $stmt = $mysqli->prepare("SELECT o.id, o.created_at, o.amount, o.status,
+                    op.card_amount, op.tich_luy_amount, op.tieu_dung_amount, op.kha_dung_amount, op.cash_amount
+                FROM orders o
+                LEFT JOIN order_payments op ON op.order_id = o.id
+                WHERE $ownOrdersWhereSql
+                ORDER BY o.created_at DESC
+                LIMIT 50");
+            $refs = [$ownOrdersTypes];
+            foreach ($ownOrdersParams as $k => $v) $refs[] = &$ownOrdersParams[$k];
+            call_user_func_array([$stmt, 'bind_param'], $refs);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            $ownOrders = [];
+            $ownOrderIds = [];
+            while ($row = $res->fetch_assoc()) {
+                $row['status_label'] = $orderStatusLabel[$row['status']] ?? $row['status'];
+                $row['created_at_fmt'] = date('d/m/Y H:i', strtotime($row['created_at']));
+                $row['items'] = [];
+                $ownOrders[] = $row;
+                $ownOrderIds[] = (int)$row['id'];
+            }
+            $stmt->close();
+
+            if ($ownOrderIds) {
+                $idsPlaceholder = implode(',', array_fill(0, count($ownOrderIds), '?'));
+                $itemsTypes = str_repeat('i', count($ownOrderIds));
+                $stmt = $mysqli->prepare("SELECT oi.order_id, oi.quantity, oi.price, p.name
+                    FROM order_items oi
+                    LEFT JOIN sys_product p ON p.id = oi.product_id
+                    WHERE oi.order_id IN ($idsPlaceholder)");
+                $refs = [$itemsTypes];
+                foreach ($ownOrderIds as $k => $v) $refs[] = &$ownOrderIds[$k];
+                call_user_func_array([$stmt, 'bind_param'], $refs);
+                $stmt->execute();
+                $res = $stmt->get_result();
+                $ownOrderItemsMap = [];
+                while ($row = $res->fetch_assoc()) {
+                    $ownOrderItemsMap[$row['order_id']][] = $row;
+                }
+                $stmt->close();
+
+                foreach ($ownOrders as &$ord) {
+                    $ord['items'] = $ownOrderItemsMap[$ord['id']] ?? [];
+                }
+                unset($ord);
+            }
+
+            $smarty->assign('ownOrders', $ownOrders);
+            $smarty->assign('orderStatusLabel', $orderStatusLabel);
+            $smarty->assign('orderFilterStatus', $orderFilterStatus);
+            $smarty->assign('orderFilterFrom', $orderFilterFrom);
+            $smarty->assign('orderFilterTo', $orderFilterTo);
         }
-		if($arrProductBasket){
-			$smarty->assign('arrProductBasket',$arrProductBasket);
-			$smarty->assign('themeName',$themeName);
-			$smarty->assign('lang',$lang);
-			$smarty->assign("Name",$lable->_("Name"));
-			$smarty->assign("Price",$lable->_("Price"));
-			$smarty->assign("Amount",$lable->_("Amount"));	
-			$smarty->assign("Total",$lable->_("Total"));	
-			$smarty->assign("Mobile",$lable->_("Mobile"));	
-			$smarty->assign("Address",$lable->_("Address"));	
-			$smarty->assign("Content",$lable->_("Content"));	
-			$smarty->assign("Order",$lable->_("Order"));
-			$smarty->assign("Total",$lable->_("Total"));
-			$smarty->assign("Number",$lable->_("The number of products"));
-			$smarty->display(_DOMAIN_ROOT_TEMPLATE.'/basket_list.tpl','basket_list_');
-		}
-		else {
-			echo '<div style="text-align:center; padding-top:100px; padding-bottom: 100px; color:#8D0100"><b>Không có sản phẩm nào trong giỏ hàng</b></div>';
-		}				
+		$smarty->assign('arrProductBasket',$arrProductBasket);
+		$smarty->assign('themeName',$themeName);
+		$smarty->assign('lang',$lang);
+		$smarty->assign("Name",$lable->_("Name"));
+		$smarty->assign("Price",$lable->_("Price"));
+		$smarty->assign("Amount",$lable->_("Amount"));
+		$smarty->assign("Total",$lable->_("Total"));
+		$smarty->assign("Mobile",$lable->_("Mobile"));
+		$smarty->assign("Address",$lable->_("Address"));
+		$smarty->assign("Content",$lable->_("Content"));
+		$smarty->assign("Order",$lable->_("Order"));
+		$smarty->assign("Total",$lable->_("Total"));
+		$smarty->assign("Number",$lable->_("The number of products"));
+		$smarty->display(_DOMAIN_ROOT_TEMPLATE.'/basket_list.tpl','basket_list_');
 		include_once("footer.php");
 	}
 	

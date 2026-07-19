@@ -29,9 +29,9 @@ Khách đăng ký
 |---|---|
 | **Ví tổng** | Tổng thu nhập (hoa hồng, thưởng...). Chỉ để theo dõi, không rút/thanh toán trực tiếp. Tiền vào ví tổng lập tức tự động chia sang 4 ví bên dưới (xem quy tắc chia ví). |
 | **Ví khả dụng** (`kha_dung`) | Ví duy nhất được rút về ngân hàng (mục 7). Dùng thanh toán phần còn thiếu của đơn hàng khi ví tiêu dùng đã hết. |
-| **Ví tích lũy tiêu dùng** (`tich_luy_tieu_dung`) | (bổ sung 2026-07-13) Nhận từ khoản "Tích lũy tiêu dùng" (mục 6 - đổi tên từ "thưởng điểm thẻ tiêu dùng", chia đều cho toàn bộ thành viên `business_active`). Dùng thanh toán đơn hàng, ưu tiên 2 (mục 3), sau điểm thẻ tiêu dùng. |
-| **Ví tiêu dùng** (`tieu_dung`) | Chỉ dùng thanh toán đơn hàng, sau khi đã trừ điểm thẻ tiêu dùng và Tích lũy tiêu dùng. Hết điểm thì hiển thị QR chuyển khoản để thanh toán phần còn thiếu. |
-| **Ví tái tiêu dùng** (`tai_tieu_dung`) | Thành viên không được dùng, chỉ theo dõi. Tối đa 258,000,000đ, vượt quá không cộng thêm. Khi đạt/vượt 5,000,000đ → tự động trừ đúng 5,000,000đ (giữ lại phần dư nếu có, **không** reset về 0) → tạo 1 giao dịch Rebuy → sinh hoa hồng/thưởng liên quan (xem mục 6 — Giao dịch tái tiêu dùng tự động) → tăng số lần tái tiêu dùng (`rebuy_count`). Nếu phần dư sau khi trừ vẫn còn ≥5,000,000đ → tiếp tục tạo thêm giao dịch Rebuy khác, lặp lại đến khi dư <5,000,000đ. (cập nhật 2026-07-11) |
+| **Ví tích lũy tiêu dùng** (`tich_luy_tieu_dung`) | (bổ sung 2026-07-13) Nhận từ khoản "Tích lũy tiêu dùng" (mục 6 - đổi tên từ "thưởng điểm thẻ tiêu dùng", chia đều cho toàn bộ thành viên `business_active`). Dùng thanh toán đơn hàng, ưu tiên 2 (mục 3), sau điểm thẻ tiêu dùng. **Trần 10,000,000đ = 200% giá trị combo kích hoạt (5,000,000đ)** (xác nhận nghiệp vụ 2026-07-16), tính trên **tổng cộng dồn đã từng nhận** từ nguồn Tích lũy tiêu dùng (không phải số dư ví hiện tại — ví này bị trừ khi thanh toán đơn hàng, đã tiêu rồi vẫn tính vào tổng đã nhận). Đạt trần thì không nhận thêm nữa, không dồn cho lần phát sinh khác. |
+| **Ví tiêu dùng** (`tieu_dung`) | Chỉ dùng thanh toán đơn hàng, sau khi đã trừ điểm thẻ tiêu dùng và Tích lũy tiêu dùng. Hết điểm thì hiển thị QR chuyển khoản để thanh toán phần còn thiếu. Riêng phần nhận từ **thưởng tiêu dùng tuần hoàn** (mục 6) có **trần 258,000,000đ** (xác nhận nghiệp vụ 2026-07-16, trước đó tài liệu gán nhầm trần này cho ví tái tiêu dùng bên dưới), tính trên **tổng cộng dồn đã từng nhận** từ riêng nguồn này (không phải số dư ví hiện tại, và không tính phần ví nhận từ nguồn khác — vd 20% chia từ mọi khoản hoa hồng, mục "Quy tắc chia ví tổng" bên dưới, không bị giới hạn). |
+| **Ví tái tiêu dùng** (`tai_tieu_dung`) | Thành viên không được dùng, chỉ theo dõi. **Không có trần** (xác nhận nghiệp vụ 2026-07-16 — trước đó tài liệu ghi nhầm trần 258,000,000đ ở đây, đã bỏ). Khi đạt/vượt 5,000,000đ → tự động trừ đúng 5,000,000đ (giữ lại phần dư nếu có, **không** reset về 0) → tạo 1 giao dịch Rebuy → sinh hoa hồng/thưởng liên quan (xem mục 6 — Giao dịch tái tiêu dùng tự động) → tăng số lần tái tiêu dùng (`rebuy_count`). Nếu phần dư sau khi trừ vẫn còn ≥5,000,000đ → tiếp tục tạo thêm giao dịch Rebuy khác, lặp lại đến khi dư <5,000,000đ. (cập nhật 2026-07-11) |
 | **Ví thuế, phí** (`thue_phi`) | Lưu tiền thuế. Không được sử dụng trực tiếp. |
 
 ## Quy tắc chia ví tổng
@@ -91,6 +91,16 @@ chuyển khoản, không báo lỗi/chặn đặt hàng.
 **và** Tích lũy tiêu dùng đã dùng thanh toán (`card_amount` + `tich_luy_amount`, cập nhật 2026-07-13 — mục 3
 — Quỹ công ty / Quỹ chia hoa hồng, không phải trừ trên giá trị đơn hàng gốc). `tieu_dung_amount` /
 `kha_dung_amount` không ảnh hưởng quỹ chia hoa hồng (chỉ dùng để hoàn tiền khi từ chối đơn).
+
+**Trần điểm thẻ + Tích lũy tiêu dùng theo hoa hồng đơn** (bổ sung 2026-07-19): Tổng `card_amount` +
+`tich_luy_amount` dùng thanh toán 1 đơn **không được vượt quá** tổng "hoa hồng sản phẩm" của chính đơn đó
+(tức quỹ chia hoa hồng TRƯỚC khi trừ 2 khoản này) — chặn ngay lúc trừ tiền tại `modules/basket/order.php`
+(biến `$order_commission_fund`), không phải chặn sau. Tránh trường hợp quỹ chia hoa hồng bị kéo về 0 do
+khách trả bằng điểm thẻ/Tích lũy tiêu dùng nhiều hơn hoa hồng đơn tạo ra. Áp dụng đúng thứ tự ưu tiên: điểm
+thẻ tiêu dùng trừ trước (vẫn giữ trần `card_payment_percent` riêng), rồi mới tới Tích lũy tiêu dùng — phần
+nào vượt trần chung này tự động rơi xuống ví tiêu dùng/khả dụng/chuyển khoản như các trần khác đã có, không
+chặn đặt hàng. Không đổi cách tính `calculateCommissionFund()` (vẫn giữ `max(0, ...)` phòng hờ dữ liệu cũ
+trước khi có trần này).
 
 Khi kích hoạt gói 5 triệu lần đầu (xem bên dưới), thành viên được cộng 5,000,000 điểm thẻ tiêu dùng.
 
@@ -311,7 +321,14 @@ Trích **16%** quỹ chia hoa hồng (ví dụ quỹ 3,000,000đ → trích 480,
 - **30%** (144,000đ) còn lại → cộng vào **Quỹ tiêu dùng tuần hoàn công ty** (cập nhật 2026-07-15, xem mục 3 — chia đều 3 phần: chi phí nền tảng / Ban điều hành & Leader / quỹ dự phòng riêng — trước đó chung với quỹ vận hành).
 
 thưởng tiêu dùng tuần hoàn cộng vào ví tiêu dùng của thành viên
-mỗi thành viên được nhận điểm thẻ tiêu dùng tối đa 258 triệu
+
+**Trần 258,000,000đ** (xác nhận nghiệp vụ 2026-07-16 — trước đó tài liệu ghi nhầm là "điểm thẻ tiêu dùng" và
+nhầm gán cho ví tái tiêu dùng ở mục 2, ví tái tiêu dùng thực ra **không có trần**): mỗi thành viên chỉ nhận
+được **tổng cộng dồn tối đa 258,000,000đ** từ riêng nguồn thưởng tiêu dùng tuần hoàn này (tính trên tổng đã
+từng phát sinh cho người đó — kể cả dòng đang `pending` chưa cộng ví — không phải số dư ví `tieu_dung` hiện
+tại, vì ví này bị trừ dần khi thanh toán đơn hàng). Đạt trần thì tầng đó không nhận thêm nữa (giống quy tắc
+"tầng không có thành viên/chưa đạt danh hiệu thì không chia", không dồn cho tầng khác). Code:
+`creditRecurringConsumptionBonus()` trong `admin80/include/order_commission.php`.
 
 ## Tích lũy tiêu dùng
 
@@ -332,6 +349,12 @@ sinh khác.
 
 Áp dụng quy tắc pending/release theo `commission_active` của từng người nhận (mục 5) — người `commission_active
 = 0` thì phần của họ để `pending`, chưa cộng ví.
+
+**Trần 10,000,000đ = 200% giá trị combo kích hoạt (5,000,000đ)** (xác nhận nghiệp vụ 2026-07-16): mỗi thành
+viên chỉ nhận được **tổng cộng dồn tối đa 10,000,000đ** từ nguồn Tích lũy tiêu dùng (tính trên tổng đã từng
+phát sinh — kể cả dòng đang `pending` — không phải số dư ví `tich_luy_tieu_dung` hiện tại, vì ví này bị trừ
+dần khi thanh toán đơn hàng). Đạt trần thì người đó không nhận thêm phần chia của lần phát sinh sau, không
+dồn cho người khác.
 
 Tích lũy tiêu dùng cộng vào **ví riêng** `user_wallets.tich_luy_tieu_dung` (mục 2) — không qua quy tắc chia
 ví tổng 60/20/10/10, không cộng chung với điểm thẻ tiêu dùng.
@@ -506,9 +529,13 @@ Cần thêm các key cấu hình còn thiếu để không hard-code trong code:
 
 | name | Ý nghĩa |
 |---|---|
-| `spillover_f1`..`spillover_f8` | Tỉ lệ % hoa hồng cây lấp tầng mỗi tầng (tài liệu mục 6: đồng đều 3%/tầng, tổng 24% — cập nhật 2026-07-11, đã áp dụng trên DB). |
-| `card_recurring_percent` | % trích từ quỹ hoa hồng vào thẻ tiêu dùng tuần hoàn (tài liệu mục 6: 16%, cập nhật 2026-07-11 — trước đó 10%). |
-| `card_payment_percent` | (đã áp dụng — cập nhật 2026-07-11) % thanh toán đơn hàng tối đa bằng điểm thẻ tiêu dùng, admin tự đặt tại trang admin `?m=config`. Mặc định 100% nếu admin chưa cấu hình (chưa có dòng trong `sys_config`). |
+| `f1`..`f8` | (đã áp dụng — cập nhật 2026-07-16, thêm ô nhập tại `?m=config`) Tỉ lệ % hoa hồng sơ đồ trực tiếp mỗi tầng (mục 4: F1 16%, F2-F8 mỗi tầng 2%, tổng 30%). Trước đó chỉ chỉnh trực tiếp trong database, nay admin tự đặt qua trang admin (nhập dạng %, lưu dạng phân số 0-1 để khớp `generateDirectCommission()`). |
+| `spillover_f1`..`spillover_f8` | (đã áp dụng — cập nhật 2026-07-16, thêm ô nhập tại `?m=config`) Tỉ lệ % hoa hồng cây lấp tầng mỗi tầng (tài liệu mục 6: đồng đều 3%/tầng, tổng 24% — cập nhật 2026-07-11). Fallback trong code (`generateSpilloverCommission()`) nếu thiếu dòng cấu hình: 3%/tầng (cập nhật 2026-07-16 — trước đó fallback sai, còn theo cấu trúc cũ 16%/2%). |
+| `card_payment_percent` | (đã áp dụng — cập nhật 2026-07-11) % thanh toán đơn hàng tối đa bằng điểm thẻ tiêu dùng, admin tự đặt tại trang admin `?m=config`. Mặc định 100% nếu admin chưa cấu hình. |
+| `operating_fund_percent` | (đã áp dụng — bổ sung 2026-07-16) % quỹ chia hoa hồng mỗi đơn trích vào quỹ vận hành (mục 3), admin tự đặt tại `?m=config`. Mặc định 10% nếu chưa cấu hình. |
+| `accumulated_consumption_percent` | (đã áp dụng — bổ sung 2026-07-16) % quỹ chia hoa hồng trích vào Tích lũy tiêu dùng (mục 6), admin tự đặt tại `?m=config`. Mặc định 10% nếu chưa cấu hình. |
+| `card_recurring_percent` | (đã áp dụng — bổ sung 2026-07-16) % quỹ chia hoa hồng trích vào thưởng tiêu dùng tuần hoàn (mục 6), admin tự đặt tại `?m=config`. Mặc định 16% nếu chưa cấu hình. |
+| `recurring_consumption_ancestor_percent` | (đã áp dụng — bổ sung 2026-07-16) % của khoản thưởng tiêu dùng tuần hoàn chia cho tuyến trên theo tầng (phần còn lại vào Quỹ tiêu dùng tuần hoàn công ty, mục 6), admin tự đặt tại `?m=config`. Mặc định 70% nếu chưa cấu hình. |
 
 ## 11.2 Bảng mới
 
@@ -522,7 +549,7 @@ Cần thêm các key cấu hình còn thiếu để không hard-code trong code:
 | `kha_dung` | DECIMAL(15,2) DEFAULT 0 | Ví khả dụng — duy nhất được rút về ngân hàng, và thanh toán phần còn thiếu của đơn hàng. |
 | `tieu_dung` | DECIMAL(15,2) DEFAULT 0 | Ví tiêu dùng — chỉ dùng thanh toán đơn hàng (sau khi trừ điểm thẻ tiêu dùng và Tích lũy tiêu dùng). |
 | `tich_luy_tieu_dung` | DECIMAL(15,2) DEFAULT 0 | (đã áp dụng — `database/migration_2026-07-13_accumulated_consumption_wallet.sql`) Ví Tích lũy tiêu dùng — nhận từ khoản Tích lũy tiêu dùng (mục 6), dùng thanh toán đơn hàng ưu tiên 2 (mục 3). |
-| `tai_tieu_dung` | DECIMAL(15,2) DEFAULT 0 | Ví tái tiêu dùng — chỉ theo dõi, tối đa 258,000,000. Khi đạt 5,000,000 tự động tạo giao dịch Rebuy rồi reset về 0. |
+| `tai_tieu_dung` | DECIMAL(15,2) DEFAULT 0 | Ví tái tiêu dùng — chỉ theo dõi, **không có trần** (xác nhận nghiệp vụ 2026-07-16). Khi đạt/vượt 5,000,000 tự động trừ đúng 5,000,000 tạo giao dịch Rebuy, giữ lại phần dư (không reset về 0), xem mục 2. |
 | `thue_phi` | DECIMAL(15,2) DEFAULT 0 | Ví thuế, phí — không được sử dụng trực tiếp. |
 | `rebuy_count` | INT DEFAULT 0 | Số lần đã tái tiêu dùng (tăng mỗi lần ví tái tiêu dùng reset). |
 | `updated_at` | DATETIME ON UPDATE CURRENT_TIMESTAMP | |

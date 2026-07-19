@@ -194,16 +194,20 @@
 		$oCKEditor = new CKEditor() ;
 		$oCKEditor->Config['ToolbarStartExpanded'] = false ;
 		//$oFCKeditor->ToolbarSet = 'basic';
+		// Giữ lại thẻ <i>/<span> rỗng (icon font kiểu Font Awesome <i class="fa fa-...">) khi lưu nội dung -
+		// mặc định CKEditor coi các thẻ inline không có text bên trong là "rỗng" và tự xoá lúc Submit.
+		// Lưu ý: property đúng của class CKEditor là $config (chữ thường), không phải $Config.
+		$oCKEditor->config['extraAllowedContent'] = 'i(*)[*]{*}; span(*)[*]{*}';
 		$oCKEditor->BasePath	= $sBasePath ;
 		$oCKEditor->Height		= 400;
 		$oCKEditor->Value		= $content;
-		
-		CKFinder::SetupCKEditor( $oCKEditor, 'js/ckfinder/' ) ; 
-		
+
+		CKFinder::SetupCKEditor( $oCKEditor, 'js/ckfinder/' ) ;
+
 		$oCKEditor->editor('content',$content,'','') ;
-		
+
 	}
-	
+
 	function viewFckeditor_giaodiencu($content){
 	
 		include_once("js/ckeditor/ckeditor.php");

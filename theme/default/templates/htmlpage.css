@@ -73,9 +73,36 @@
 }
 
 .hp-card-icon {
-    font-size: 22px;
-    color: #16a34a;
-    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #dcfce7;
+    margin-bottom: 12px;
+}
+
+.hp-card-icon img {
+    width: 24px;
+    height: 24px;
+}
+
+.hp-value-title .hp-icon-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #dcfce7;
+    margin-right: 7px;
+    vertical-align: middle;
+}
+
+.hp-value-title .hp-icon-badge img {
+    width: 13px;
+    height: 13px;
 }
 
 .hp-card-title {

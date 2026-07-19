@@ -345,14 +345,28 @@ function calculateCommissionFund($mysqli, $order_id) {
     return max(0, $productCommissionSum - $cardAmount - $tichLuyAmount);
 }
 
+// Đọc 1 tỉ lệ % (lưu dạng số nguyên 0-100 trong sys_config, cùng quy ước với card_payment_percent - khác
+// f1-f8/spillover_f1-f8 lưu dạng phân số) - dùng $default nếu admin chưa cấu hình. Cấu hình qua trang admin
+// ?m=config (admin80/modules/config/action.php + config.tpl).
+function getSysConfigPercent($mysqli, $name, $default) {
+    $stmt = $mysqli->prepare("SELECT value FROM sys_config WHERE name = ? AND lang = 'vn'");
+    $stmt->bind_param("s", $name);
+    $stmt->execute();
+    $value = $stmt->get_result()->fetch_assoc()['value'] ?? null;
+    $stmt->close();
+    return ($value === null || $value === '') ? $default : (float) $value;
+}
+
 // Chia hoa hồng sơ đồ trực tiếp 8 tầng (f1..f8 theo sys_config) trên quỹ chia hoa hồng (mục 3, cập nhật
 // 2026-07-11). F1 = 16%, F2..F8 mỗi tầng 2% = tổng 30% (mục 4 BUSINESS_RULES.md, cập nhật 2026-07-10: bỏ
 // tầng F9).
 function generateDirectCommission($mysqli, $order_id, $buyerId) {
     $commissionFund = calculateCommissionFund($mysqli, $order_id);
 
-    // Quỹ vận hành: 10% quỹ chia hoa hồng của MỌI đơn đã duyệt (mục 3 BUSINESS_RULES.md), chia đều 5 quỹ con
-    creditOperatingFund($mysqli, $order_id, 'direct_commission', $commissionFund * 0.10);
+    // Quỹ vận hành: operating_fund_percent% quỹ chia hoa hồng của MỌI đơn đã duyệt (mục 3 BUSINESS_RULES.md,
+    // mặc định 10% nếu admin chưa cấu hình qua ?m=config), chia đều 5 quỹ con
+    $operatingFundPercent = getSysConfigPercent($mysqli, 'operating_fund_percent', 10);
+    creditOperatingFund($mysqli, $order_id, 'direct_commission', $commissionFund * ($operatingFundPercent / 100));
 
     $rates = [];
     $res = $mysqli->query("SELECT name, value FROM sys_config WHERE name IN ('f1','f2','f3','f4','f5','f6','f7','f8') AND lang = 'vn'");
@@ -809,11 +823,11 @@ function generateBackfillSpilloverCommissionIfEligible($mysqli, $order_id, $buye
     $upd->close();
 }
 
-// Chia hoa hồng cây lấp tầng 8 tầng (F1..F8), đọc sys_config.spillover_f1..f8 (mặc định F1=16%,
-// F2..F8=2%/tầng nếu chưa cấu hình) đi lên theo spillover_tree.parent_id (KHÔNG phải ref_by) bắt đầu
-// từ vị trí vừa được xếp (mục 6 BUSINESS_RULES.md: 8 tầng, F1 16%, F2-F8 mỗi tầng 2%, tổng 30%).
+// Chia hoa hồng cây lấp tầng 8 tầng (F1..F8), đọc sys_config.spillover_f1..f8 (mặc định đồng đều 3%/tầng
+// nếu chưa cấu hình) đi lên theo spillover_tree.parent_id (KHÔNG phải ref_by) bắt đầu từ vị trí vừa được
+// xếp (mục 6 BUSINESS_RULES.md, cập nhật 2026-07-11: đồng đều mỗi tầng 3%, tổng 24%).
 function generateSpilloverCommission($mysqli, $order_id, $placedUserId, $fundAmount) {
-    $defaultRates = [1 => 0.16, 2 => 0.02, 3 => 0.02, 4 => 0.02, 5 => 0.02, 6 => 0.02, 7 => 0.02, 8 => 0.02];
+    $defaultRates = [1 => 0.03, 2 => 0.03, 3 => 0.03, 4 => 0.03, 5 => 0.03, 6 => 0.03, 7 => 0.03, 8 => 0.03];
 
     $rates = [];
     $res = $mysqli->query("SELECT name, value FROM sys_config WHERE name IN ('spillover_f1','spillover_f2','spillover_f3','spillover_f4','spillover_f5','spillover_f6','spillover_f7','spillover_f8') AND lang = 'vn'");
@@ -873,9 +887,11 @@ function creditSpilloverCommission($mysqli, $order_id, $userId, $level, $amount)
 // hệ thống, TRỪ chính người vừa được xếp vào cây (nguồn phát sinh quỹ này). Khác cơ chế cũ (đi lên 8 tầng
 // spillover_tree, cộng vào consumption_cards.balance) - nay không phụ thuộc vị trí trong cây, cộng vào ví
 // riêng user_wallets.tich_luy_tieu_dung. Không có ai đủ điều kiện (chỉ 1 mình người vừa kích hoạt là
-// business_active) thì bỏ qua, không dồn cho lần phát sinh khác.
+// business_active) thì bỏ qua, không dồn cho lần phát sinh khác. Tỉ lệ trích (mặc định 10% nếu admin chưa
+// cấu hình) đọc từ sys_config.accumulated_consumption_percent qua trang admin ?m=config.
 function generateAccumulatedConsumptionBonus($mysqli, $order_id, $placedUserId, $fundAmount) {
-    $totalAmount = $fundAmount * 0.10;
+    $accumulatedConsumptionPercent = getSysConfigPercent($mysqli, 'accumulated_consumption_percent', 10);
+    $totalAmount = $fundAmount * ($accumulatedConsumptionPercent / 100);
     if ($totalAmount <= 0) return;
 
     $stmt = $mysqli->prepare("SELECT id FROM user WHERE business_active = 1 AND id != ?");
@@ -896,7 +912,21 @@ function generateAccumulatedConsumptionBonus($mysqli, $order_id, $placedUserId, 
 
 // Sinh 1 dòng Tích lũy tiêu dùng cho 1 người nhận. Nếu người nhận commission_active = 0 thì lưu pending,
 // chưa cộng ví; = 1 thì released, cộng thẳng vào user_wallets.tich_luy_tieu_dung ngay (mục 5).
+// Trần 10,000,000đ = 200% giá trị combo kích hoạt 5,000,000đ (mục 2, xác nhận nghiệp vụ 2026-07-16): tính
+// trên TỔNG CỘNG DỒN đã từng nhận từ nguồn Tích lũy tiêu dùng (SUM mọi dòng accumulated_consumption_bonuses
+// của user, kể cả đang pending - không phải số dư ví tich_luy_tieu_dung hiện tại, vì ví này bị trừ khi thanh
+// toán đơn hàng). Chỉ cộng phần còn trong hạn mức, bỏ qua nếu đã đạt trần (không tạo dòng).
 function creditAccumulatedConsumptionBonus($mysqli, $order_id, $userId, $amount) {
+    $accumulatedCap = 10000000;
+    $stmt = $mysqli->prepare("SELECT COALESCE(SUM(amount), 0) total FROM accumulated_consumption_bonuses WHERE user_id = ?");
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $existingTotal = (float) $stmt->get_result()->fetch_assoc()['total'];
+    $stmt->close();
+
+    $amount = min($amount, max(0, $accumulatedCap - $existingTotal));
+    if ($amount <= 0) return;
+
     $stmt = $mysqli->prepare("SELECT commission_active FROM user WHERE id = ?");
     $stmt->bind_param("i", $userId);
     $stmt->execute();
@@ -918,17 +948,22 @@ function creditAccumulatedConsumptionBonus($mysqli, $order_id, $userId, $amount)
 }
 
 // ----- Thưởng tiêu dùng tuần hoàn (mục 6 BUSINESS_RULES.md) -----
-// Trích 16% quỹ chia hoa hồng của đơn kích hoạt. 70% chia đều 8 tầng đi lên theo spillover_tree.parent_id
-// (giống hoa hồng lấp tầng/thưởng điểm thẻ) - chỉ ancestor ĐÃ đạt ít nhất 1 danh hiệu (có dòng trong
-// user_ranks) mới nhận, tầng nào ancestor chưa có danh hiệu thì bỏ qua (giống "tầng không có thành viên
-// thì không chia"). 30% còn lại chuyển vào Quỹ tiêu dùng tuần hoàn công ty (cập nhật 2026-07-15, xem
-// creditCompanyCardFund()) - trước đó chung với quỹ vận hành mục 3.
+// Trích card_recurring_percent% quỹ chia hoa hồng của đơn kích hoạt (mặc định 16% nếu admin chưa cấu hình).
+// recurring_consumption_ancestor_percent% của khoản đó (mặc định 70%) chia đều 8 tầng đi lên theo
+// spillover_tree.parent_id (giống hoa hồng lấp tầng/thưởng điểm thẻ) - chỉ ancestor ĐÃ đạt ít nhất 1 danh
+// hiệu (có dòng trong user_ranks) mới nhận, tầng nào ancestor chưa có danh hiệu thì bỏ qua (giống "tầng
+// không có thành viên thì không chia"). Phần còn lại chuyển vào Quỹ tiêu dùng tuần hoàn công ty (cập nhật
+// 2026-07-15, xem creditCompanyCardFund()) - trước đó chung với quỹ vận hành mục 3. Cả 2 tỉ lệ cấu hình qua
+// trang admin ?m=config.
 function generateRecurringConsumptionBonus($mysqli, $order_id, $placedUserId, $fundAmount) {
-    $recurringAmount = $fundAmount * 0.16;
+    $cardRecurringPercent = getSysConfigPercent($mysqli, 'card_recurring_percent', 16);
+    $recurringAmount = $fundAmount * ($cardRecurringPercent / 100);
 
-    creditCompanyCardFund($mysqli, $order_id, $recurringAmount * 0.30);
+    $ancestorPercent = getSysConfigPercent($mysqli, 'recurring_consumption_ancestor_percent', 70);
 
-    $perLevelAmount = round($recurringAmount * 0.70 / 8, 2);
+    creditCompanyCardFund($mysqli, $order_id, $recurringAmount * ((100 - $ancestorPercent) / 100));
+
+    $perLevelAmount = round($recurringAmount * ($ancestorPercent / 100) / 8, 2);
     if ($perLevelAmount <= 0) return;
 
     $currentUserId = $placedUserId;
@@ -952,6 +987,10 @@ function generateRecurringConsumptionBonus($mysqli, $order_id, $placedUserId, $f
 // người nhận chưa đạt danh hiệu nào (mục 6). Nếu đã đạt danh hiệu: commission_active = 0 thì lưu pending,
 // chưa cộng ví; = 1 thì released, cộng thẳng vào ví tiêu dùng ngay (mục 5, cập nhật 2026-07-11: đổi điều
 // kiện từ business_active sang commission_active).
+// Trần 258,000,000đ (mục 2, xác nhận nghiệp vụ 2026-07-16 - trước đó gán nhầm cho ví tái tiêu dùng): tính
+// trên TỔNG CỘNG DỒN đã từng nhận từ nguồn thưởng tiêu dùng tuần hoàn (SUM mọi dòng recurring_consumption_bonuses
+// của user, kể cả đang pending - không phải số dư ví tieu_dung hiện tại, vì ví này bị trừ khi thanh toán đơn
+// hàng). Chỉ cộng phần còn trong hạn mức, bỏ qua nếu đã đạt trần (không tạo dòng).
 function creditRecurringConsumptionBonus($mysqli, $order_id, $userId, $level, $amount) {
     $stmt = $mysqli->prepare("SELECT id FROM user_ranks WHERE user_id = ? LIMIT 1");
     $stmt->bind_param("i", $userId);
@@ -960,6 +999,16 @@ function creditRecurringConsumptionBonus($mysqli, $order_id, $userId, $level, $a
     $stmt->close();
 
     if (!$hasRank) return;
+
+    $recurringCap = 258000000;
+    $stmt = $mysqli->prepare("SELECT COALESCE(SUM(amount), 0) total FROM recurring_consumption_bonuses WHERE user_id = ?");
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $existingTotal = (float) $stmt->get_result()->fetch_assoc()['total'];
+    $stmt->close();
+
+    $amount = min($amount, max(0, $recurringCap - $existingTotal));
+    if ($amount <= 0) return;
 
     $stmt = $mysqli->prepare("SELECT commission_active FROM user WHERE id = ?");
     $stmt->bind_param("i", $userId);
@@ -1085,10 +1134,11 @@ function creditRankBonus($mysqli, $order_id, $userId, $amount) {
     }
 }
 
-// Ví tái tiêu dùng: tối đa 258,000,000, vượt quá không cộng tiếp (mục 2 - Ví)
+// Ví tái tiêu dùng: KHÔNG có trần (mục 2, xác nhận nghiệp vụ 2026-07-16 - trước đó cap nhầm 258,000,000đ ở
+// đây, trần này thực ra thuộc thưởng tiêu dùng tuần hoàn/Tích lũy tiêu dùng, xem creditRecurringConsumptionBonus()/
+// creditAccumulatedConsumptionBonus()). Cộng đủ $amount rồi kiểm tra kích hoạt Rebuy tự động (mục 6) như cũ.
 function creditTaiTieuDungCapped($mysqli, $userId, $amount, $refType, $refId) {
     if ($amount <= 0) return;
-    $cap = 258000000;
 
     ensureWalletRow($mysqli, $userId);
 
@@ -1098,18 +1148,15 @@ function creditTaiTieuDungCapped($mysqli, $userId, $amount, $refType, $refId) {
     $current = (float)$stmt->get_result()->fetch_assoc()['tai_tieu_dung'];
     $stmt->close();
 
-    $allowed = min($amount, $cap - $current);
-    if ($allowed <= 0) return;
-
     $stmt = $mysqli->prepare("UPDATE user_wallets SET tai_tieu_dung = tai_tieu_dung + ? WHERE user_id = ?");
-    $stmt->bind_param("di", $allowed, $userId);
+    $stmt->bind_param("di", $amount, $userId);
     $stmt->execute();
     $stmt->close();
 
-    $balanceAfter = $current + $allowed;
+    $balanceAfter = $current + $amount;
 
     $stmt = $mysqli->prepare("INSERT INTO wallet_transactions (user_id, wallet_type, direction, amount, balance_after, ref_type, ref_id) VALUES (?, 'tai_tieu_dung', 'credit', ?, ?, ?, ?)");
-    $stmt->bind_param("iddsi", $userId, $allowed, $balanceAfter, $refType, $refId);
+    $stmt->bind_param("iddsi", $userId, $amount, $balanceAfter, $refType, $refId);
     $stmt->execute();
     $stmt->close();
 
